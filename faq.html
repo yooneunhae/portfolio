@@ -196,7 +196,46 @@
             line-height: 1.6;
             color: #444;
         }
+        /* [수정] 질문 내용 래퍼 (배지와 텍스트 수직 정렬) */
+        .q-wrap {
+            display: flex;
+            flex-direction: column; /* 위아래 배치 */
+            align-items: flex-start; /* 왼쪽 정렬 */
+            gap: 8px; /* 배지와 질문 사이 간격 */
+        }
 
+        .question-text {
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: var(--text-main);
+            line-height: 1.4;
+        }
+
+        .toggle-icon {
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+            margin-left: 15px; /* 텍스트와 아이콘 사이 최소 간격 */
+            flex-shrink: 0;
+        }
+
+        .faq-item.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0, 1, 0, 1);
+            background-color: #fafafa;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .faq-answer-content {
+            padding: 20px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+        }
         /* 배지 스타일 */
         .badge {
             font-size: 0.75rem;
@@ -391,9 +430,15 @@
 <body>
 
 <div class="container">
+       <!-- 헤더 영역 (좌측 정렬 + 우측 로봇 아이콘) -->
     <header>
-        <h1><i class="fas fa-robot" style="color:var(--primary-color); margin-right:8px;"></i>사내 문의 FAQ</h1>
-        <p class="description">자주 묻는 질문을 모았어요</p>
+        <div class="header-text">
+            <h1>AI 사내 FAQ</h1>
+            <p class="description">인사팀이 정리한 주요 질문 모음</p>
+        </div>
+        <div class="header-icon">
+            <i class="fas fa-robot"></i>
+        </div>
     </header>
 
     <!-- 수정된 필터 버튼 (가운데 정렬 + 스크롤 최적화) -->

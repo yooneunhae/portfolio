@@ -249,18 +249,18 @@
             opacity: 1;
         }
 
-        .modal-card {
+          .modal-card {
             background: white;
-            /* [핵심 수정] 비율(%) 대신 고정 여백(calc)을 사용하여 작은 화면에서도 항상 30px 여백 확보 */
-            width: calc(100% - 60px); 
-            max-width: 350px;    /* PC/태블릿: 아무리 넓어도 350px까지만 커짐 */
-            border-radius: 16px;
-            padding: 25px;
+            width: 100%;
+            max-width: 360px;
+            border-radius: var(--radius-lg);
+            padding: 28px;
             text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            transform: translateY(20px);
-            transition: transform 0.3s ease;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(20px) scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
+
 
 
         .modal-overlay.show .modal-card {

@@ -54,27 +54,12 @@
 
       /* 2. 헤더 디자인 (좌측 정렬 + 우측 아이콘) */
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            text-align: left;
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 0 16px;
         }
 
-        .header-text h1 {
-            font-size: 1.6rem;
-            margin: 0 0 5px 0;
-            color: var(--text-main);
-            line-height: 1.2;
-        }
-
-        .header-text .description {
-            font-size: 0.9rem;
-            color: var(--text-sub);
-            margin: 0;
-        }
-
-        /* 로봇 얼굴 아이콘 스타일 */
+         /* 로봇 얼굴 아이콘 스타일 */
         .header-icon {
             width: 55px;
             height: 55px;
@@ -89,6 +74,28 @@
             box-shadow: 0 4px 10px rgba(74, 144, 226, 0.2);
             margin-left: 15px;
         }
+
+        .header-icon i {
+            font-size: 24px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .description {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            font-weight: 400;
+        }
+
+
+      
         /* 3. 필터 버튼 (가로 스크롤 및 줄바꿈 방지 개선) */
         .filter-wrapper {
             display: flex;
@@ -456,6 +463,7 @@
         <!-- 1. 연차 -->
         <div class="faq-item" data-category="연차">
             <div class="faq-question">
+                  <div class="q-wrap">
                 <span><span class="badge 연차">연차</span>입사 1년 미만 직원의 연차 기준은?</span>
                 <i class="fas fa-chevron-down toggle-icon"></i>
             </div>
@@ -473,6 +481,7 @@
         <!-- 2. 급여 -->
         <div class="faq-item" data-category="급여">
             <div class="faq-question">
+                  <div class="q-wrap">
                 <span><span class="badge 급여">급여</span>실수령액이 왜 지난달과 다른가요?</span>
                 <i class="fas fa-chevron-down toggle-icon"></i>
             </div>
@@ -493,6 +502,7 @@
         <!-- 3. 증명서 -->
         <div class="faq-item" data-category="증명서">
             <div class="faq-question">
+                  <div class="q-wrap">
                 <span><span class="badge 증명서">증명서</span>재직증명서 바로 발급 가능한가요?</span>
                 <i class="fas fa-chevron-down toggle-icon"></i>
             </div>
@@ -509,6 +519,7 @@
          <!-- 4. 연차 (추가 예시) -->
          <div class="faq-item" data-category="연차">
             <div class="faq-question">
+                  <div class="q-wrap">
                 <span><span class="badge 연차">연차</span>반차 사용 시간 기준은?</span>
                 <i class="fas fa-chevron-down toggle-icon"></i>
             </div>

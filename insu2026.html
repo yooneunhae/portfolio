@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>2026년 4대보험</title>
+    <!-- Google Fonts CDN -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- Reset & Base --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            overflow: hidden;
+        }
+        
+        /* --- Layout: Scroll Container --- */
+        .card-scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: 100vh;
+            height: 100dvh;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .card-scroll-container::-webkit-scrollbar { display: none; }
+
+        /* --- Layout: Slide Area --- */
+        .card-slide {
+            scroll-snap-align: start;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: center; 
+             /* 기본 여백 15px (기기 상관없이 통일) + 노치 대응 */
+            padding: max(15px, env(safe-area-inset-top)) 15px max(15px, env(safe-area-inset-bottom)) 15px;
+        }
+
+        /* --- Layout: Content Card --- */
+        .card-content {
+            width: 100%;
+            max-width: 420px;
+            height: 100%; 
+            max-height: 800px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Components --- */
+        .cover-bg {
+            background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+            color: white;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header-section {
+            background-color: #EFF6FF; 
+            padding: 1.2rem; 
+            padding-top: 1.4rem;
+            border-bottom: 1px solid #DBEAFE; 
+            flex-shrink: 0;
+        }
+        
+        .point-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #2563EB; 
+            font-weight: 700;
+            margin-bottom: 0.4rem; 
+            font-size: 0.9rem; 
+        }
+
+        .main-title {
+            font-size: 1.45rem; 
+            font-weight: 800;
+            line-height: 1.35; 
+            color: #374151; 
+            word-break: keep-all;
+        }
+        
+        .content-body {
+            padding: 1.5rem;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .info-box {
+            background: white;
+            border: 2px solid #DBEAFE;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .detail-box {
+            background: #F9FAFB; 
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        .highlight-box {
+            background: #FEFCE8; 
+            color: #854D0E; 
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: flex;
+            gap: 0.5rem;
+            margin-top: auto;
+            line-height: 1.4;
+        }
+
+        .text-blue { color: #2563EB; }
+        .text-gray { color: #6B7280; }
+        .font-bold { font-weight: 700; }
+        .font-black { font-weight: 900; }
+        .text-lg { font-size: 1.125rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-xs { font-size: 0.75rem; }
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        
+        .flex-row-between { display: flex; justify-content: space-between; align-items: center; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th { padding: 0.6rem; text-align: center; color: #D1D5DB; background: rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.2); }
+        td { padding: 0.6rem; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        td:last-child, th:last-child { border-right: none; }
+
+        /* --- Calculator UI --- */
+        .calc-btn {
+            position: fixed;
+            top: max(30px, env(safe-area-inset-top));
+            right: 30px;
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            cursor: pointer;
+            border: none;
+            color: #2563EB;
+            transition: transform 0.2s;
+        }
+        .calc-btn:active { transform: scale(0.95); }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 24px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        .input-field {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            border: 2px solid #DBEAFE;
+            border-radius: 12px;
+            outline: none;
+            text-align: right;
+            font-weight: 700;
+            color: #1F2937;
+        }
+        .input-field:focus { border-color: #2563EB; }
+        
+        .action-btn {
+            width: 100%;
+            background: #2563EB;
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+        }
+        .close-btn {
+            background: #F3F4F6;
+            color: #6B7280;
+            margin-top: 0.5rem;
+        }
+        
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        .result-total {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 2px dashed #E5E7EB;
+            display: flex;
+            justify-content: space-between;
+            font-weight: 900;
+            color: #2563EB;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Calculator Trigger Button -->
+    <button class="calc-btn" onclick="openModal()" aria-label="계산기 열기">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="16" height="20" x="4" y="2" rx="2"></rect>
+            <line x1="8" x2="16" y1="6" y2="6"></line>
+            <line x1="16" x2="16" y1="14" y2="18"></line>
+            <path d="M16 10h.01"></path>
+            <path d="M12 10h.01"></path>
+            <path d="M8 10h.01"></path>
+            <path d="M12 14h.01"></path>
+            <path d="M8 14h.01"></path>
+            <path d="M12 18h.01"></path>
+            <path d="M8 18h.01"></path>
+        </svg>
+    </button>
+
+    <!-- Calculator Modal -->
+    <div id="calcModal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content">
+            <h3 class="font-bold text-xl mb-4 text-center">2026년 4대보험료 모의계산</h3>
+            
+            <div class="input-group">
+                <label class="text-sm text-gray mb-2 block">세전 월 급여(원)</label>
+                <input type="text" id="salaryInput" class="input-field" placeholder="0" onkeyup="formatInput(this)">
+            </div>
+            
+            <button class="action-btn mb-2" onclick="calculateInsurance()">계산하기</button>
+            
+            <div id="resultArea" style="display:none; background: #F9FAFB; padding: 1rem; border-radius: 12px; margin-top: 1rem;">
+                <div class="result-row">
+                    <span class="text-gray">국민연금 (4.75%)</span>
+                    <span class="font-bold" id="res-pension">0</span>
+                </div>
+                <div class="result-row">
+                    <span class="text-gray">건강보험 (3.595%)</span>
+                    <span class="font-bold" id="res-health">0</span>
+                </div>
+                <div class="result-row">
+                    <span class="text-gray">장기요양 (0.4724%)</span>
+                    <span class="font-bold" id="res-care">0</span>
+                </div>
+                <div class="result-row">
+                    <span class="text-gray">고용보험 (0.9%)</span>
+                    <span class="font-bold" id="res-employ">0</span>
+                </div>
+                <div class="result-total">
+                    <span>총 공제액</span>
+                    <span id="res-total">0원</span>
+                </div>
+                <p class="text-xs text-gray text-center mt-2">*비과세 미반영 단순 참고용입니다.</p>
+            </div>
+
+            <button class="action-btn close-btn" onclick="closeModal(event, true)">닫기</button>
+        </div>
+    </div>
+
+    <div class="card-scroll-container">
+        <!-- Slide 1: Cover -->
+        <div class="card-slide">
+            <div class="card-content">
+                <div class="cover-bg">
+                    <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 50%; margin-bottom: 1.5rem; backdrop-filter: blur(4px);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: white; flex-shrink: 0;">
+                            <path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"></path>
+                            <path d="M16 2v4"></path>
+                            <path d="M8 2v4"></path>
+                            <path d="M3 10h5"></path>
+                            <path d="M17.5 17.5 16 16.25V14"></path>
+                            <path d="M22 16a6 6 0 1 1-12 0 6 6 0 0 1 12 0Z"></path>
+                        </svg>
+                    </div>
+                    <h1 class="font-black" style="font-size: 2.25rem; line-height: 1.3; margin-bottom: 1rem; word-break: keep-all;">
+                        2026년<br>우리 월급의<br>변화는?
+                    </h1>
+                    <div style="width: 64px; height: 4px; background: white; border-radius: 2px; margin: 1.5rem 0;"></div>
+                    <p class="text-xl" style="font-weight: 500; opacity: 0.9; line-height: 1.5;">
+                        직장가입자<br>4대보험료 안내
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: 국민연금 -->
+        <div class="card-slide">
+            <div class="card-content">
+                <div class="header-section">
+                    <div class="point-badge">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17h3v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a3.16 3.16 0 0 0 2-2h1a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-1a5 5 0 0 0-2-4V3a4 4 0 0 0-3.2 1.6l-.3.4H11a6 6 0 0 0-6 6v1a5 5 0 0 0 2 4v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1z"></path><path d="M16 10h.01"></path><path d="M2 8v1a2 2 0 0 0 2 2h1"></path></svg>
+                        <span>POINT 01</span>
+                    </div>
+                    <h2 class="main-title">국민연금,<br>노후 준비의 기초</h2>
+                </div>
+                <div class="content-body">
+                    <p class="text-lg text-gray mb-4" style="line-height: 1.5;">
+                        연금개혁에 따라 2026년부터<br>
+                        보험료율이 <span class="text-blue font-bold">0.5%p 상향</span>됩니다.<br>
+                        <span class="text-xs text-gray" style="margin-top:0.5rem; display:block;">*2033년까지 매년 회사, 근로자 각각 0.25%p씩 상향</span>
+                    </p>
+                    
+                    <div class="info-box">
+                        <div class="text-gray mb-1 text-sm">총 보험료율</div>
+                        <div style="display: flex; align-items: flex-end; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <span class="text-2xl font-bold" style="color:#9CA3AF;">9.0%</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#9CA3AF; width:24px; height:24px; margin-bottom:4px; flex-shrink: 0;">
+                                <path d="M5 12h14"></path>
+                                <path d="m12 5 7 7-7 7"></path>
+                            </svg>
+                            <span class="text-3xl font-black text-blue">9.5%</span>
+                        </div>
+                        
+                        <div style="height: 1px; background-color: #E5E7EB; width: 100%; margin: 1rem 0;"></div>
+
+                        <div class="flex-row-between">
+                             <span class="font-bold text-lg" style="color:#374151;">🧑‍💼 근로자 부담</span>
+                             <span class="font-black text-xl text-blue">4.75%</span>
+                        </div>
+                        <p class="text-xs text-gray" style="text-align:right; margin-top:0.5rem;">*2026년 6월까지 하한 18,000원, 상한 286,650원</p>
+                    </div>
+
+                    <div class="highlight-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; flex-shrink:0; margin-top:3px;">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="m9 12 2 2 4-4"></path>
+                        </svg>
+                        <span>참고: 소득대체율(받는 연금액 비율)이<br>기존 41.5% → <strong>43%로 상향</strong>됩니다.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: 건강보험 & 장기요양 -->
+        <div class="card-slide">
+            <div class="card-content">
+                <div class="header-section">
+                    <div class="point-badge">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2v2"></path><path d="M5 2v2"></path><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"></path><path d="M8 15a6 6 0 0 0 12 0v-3"></path><circle cx="20" cy="10" r="2"></circle></svg>
+                        <span>POINT 02</span>
+                    </div>
+                    <h2 class="main-title">건강보험,<br>더 나은 의료 서비스</h2>
+                </div>
+                <div class="content-body">
+                    <p class="text-gray mb-4" style="line-height: 1.5;">
+                        의료 서비스 질과 고령화 대비를 위해<br>보험료율이 소폭 인상되었습니다.
+                    </p>
+
+                    <div class="mb-4">
+                        <h3 class="font-bold text-lg mb-2" style="display:flex; align-items:center; gap:0.5rem;">
+                            <span style="width:8px; height:8px; background:#2563EB; border-radius:50%;"></span>건강보험료
+                        </h3>
+                        <div class="info-box">
+                            <div class="flex-row-between mb-2">
+                                <span class="text-gray text-sm">총 보험료율</span>
+                                <span style="color:#374151;">7.09% → <strong>7.19%</strong></span>
+                            </div>
+                            <div style="height:1px; background:#E5E7EB; width:100%; margin:0.5rem 0;"></div>
+                            <div class="flex-row-between">
+                                <span class="font-bold" style="color:#374151;">🧑‍💼 근로자 부담</span>
+                                <span class="font-black text-xl text-blue">3.595%</span>
+                            </div>
+                            <p class="text-xs text-gray" style="text-align:right; margin-top:0.5rem;">*하한 20,160원, 상한 4,591,740원</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="font-bold text-lg mb-2" style="display:flex; align-items:center; gap:0.5rem;">
+                            <span style="width:8px; height:8px; background:#2563EB; border-radius:50%;"></span>장기요양보험료
+                        </h3>
+                        <div class="info-box" style="margin-bottom: 0;">
+                            <div class="flex-row-between mb-2">
+                                <span class="text-gray text-sm">총 보험료율</span>
+                                <span style="color:#374151;">0.9182% → <strong>0.9448%</strong></span>
+                            </div>
+                            <div style="height:1px; background:#E5E7EB; width:100%; margin:0.5rem 0;"></div>
+                            <div class="flex-row-between">
+                                <span class="font-bold" style="color:#374151;">🧑‍💼 근로자 부담</span>
+                                <span class="font-black text-xl text-blue">0.4724%</span>
+                            </div>
+                            <p class="text-xs text-gray" style="text-align:right; margin-top:0.5rem;">*보수월액 기준 요율</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: 고용보험 -->
+        <div class="card-slide">
+            <div class="card-content">
+                <div class="header-section">
+                    <div class="point-badge">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; flex-shrink: 0;">
+                            <rect width="20" height="14" x="2" y="7" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <span>POINT 03</span>
+                    </div>
+                    <h2 class="main-title">고용보험,<br>실직과 안정 대비</h2>
+                </div>
+                <div class="content-body">
+                    <div style="background:#DBEAFE; color:#1E40AF; padding:0.5rem 1rem; border-radius:999px; font-weight:700; font-size:0.875rem; align-self:flex-start; margin-bottom:1.5rem;">
+                        전년과 동일 (동결)
+                    </div>
+                    
+                   <div class="info-box">
+                        <div class="flex-row-between mb-2">
+                            <span class="text-gray text-sm">총 보험료율</span>
+                            <span class="font-bold" style="color:#374151;">1.8%</span>
+                        </div>
+                        <div style="height:1px; background:#E5E7EB; width:100%; margin:0.5rem 0;"></div>
+                        <div class="flex-row-between">
+                            <span class="font-bold" style="color:#374151;">🧑‍💼 근로자 부담</span>
+                            <span class="font-black text-xl text-blue">0.9%</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-box">
+                        <p class="mb-2 text-sm text-gray" style="line-height:1.6;">
+                            <strong class="text-blue">🏢 회사 추가 부담</strong><br>
+                            고용안정·직업능력개발사업 비용은<br>
+                            기업 규모에 따라 0.25% ~ 0.85%<br>
+                            <span style="text-decoration: underline; text-decoration-color: #93C5FD; text-decoration-thickness: 2px;">회사가 전액 부담합니다.</span>
+                        </p>
+                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Summary -->
+        <div class="card-slide">
+            <div class="card-content" style="background: #1F2937; color: white;">
+                 <!-- [수정] padding: 2rem -> 2rem 1.5rem (좌우 여백을 줄여서 테이블 너비 확보) -->
+                <div style="padding: 2rem 1.5rem; height: 100%; display: flex; flex-direction: column;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; color: #60A5FA; font-weight: 700; margin-bottom: 1.5rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; flex-shrink: 0;">
+                            <path d="m3 17 2 2 4-4"></path>
+                            <path d="m3 7 2 2 4-4"></path>
+                            <path d="M13 6h8"></path>
+                            <path d="M13 12h8"></path>
+                            <path d="M13 18h8"></path>
+                        </svg>
+                        <span>SUMMARY</span>
+                    </div>
+                    
+                 <!-- [확인] margin-bottom이 0인지 확인하세요. (0이어야 가장 좁습니다) -->
+                    <h2 class="text-2xl font-bold" style="margin-bottom: 1;">한눈에 보는<br>2026년 4대보험료율</h2>
+
+                    <!-- [수정] padding을 1rem -> 0.25rem으로 줄여 제목과 테이블 사이 간격을 좁힘 -->
+                    <div style="flex: 1; display: flex; align-items: center; width: 100%; padding: 0.25rem 0;">
+                        <div style="width: 100%; background: rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>구분</th><th>근로자</th><th>변동</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="font-weight:700; color:#93C5FD;">국민연금</td>
+                                        <td style="font-weight:700;">4.75%</td>
+                                        <td style="color:#FCA5A5; font-size:0.8rem;">▲0.25%p</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:700; color:#93C5FD;">건강보험</td>
+                                        <td style="font-weight:700;">3.595%</td>
+                                        <td style="color:#FCA5A5; font-size:0.8rem;">▲0.05%p</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:700; color:#93C5FD;">장기요양</td>
+                                        <td style="font-weight:700;">0.4724%</td>
+                                        <td style="color:#FCA5A5; font-size:0.8rem;">소폭인상</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:700; color:#93C5FD;">고용보험</td>
+                                        <td style="font-weight:700;">0.9%</td>
+                                        <td style="color:#9CA3AF; font-size:0.8rem;">-</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <!-- 패딩을 수정하여 높이 조절 -->
+                            <div style="border-top: 1px dashed rgba(255,255,255,0.2); padding: 0.75rem; text-align: center; font-size: 0.75rem; color: #9CA3AF;">
+                                *산재보험 회사 전액부담(특수형태근로종사자 1/2부담)
+                            </div>
+                        </div>
+                    </div>
+
+                       
+
+                    <div style="background: #2563EB; border-radius: 12px; padding: 1.2rem; text-align: center;">
+                        <p style="color: #BFDBFE; font-size: 0.9rem; margin-bottom: 0.25rem;">2026년 근로자 부담 총 공제 합계(약)</p>
+                        <p class="font-black" style="font-size: 2rem;">9.7174%</p>
+                        <p style="color: #BFDBFE; font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.8; line-height: 1.4;">
+                            *개인별 보수월액 및 절사 방식에 따라<br>실제 금액은 차이가 있을 수 있습니다.
+                        </p>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 1.5rem; font-size: 0.75rem; color: #6B7280;">
+                        2026.01.01 시행
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal Logic
+        function openModal() {
+            document.getElementById('calcModal').classList.add('active');
+            document.getElementById('salaryInput').focus();
+        }
+
+        function closeModal(e, force) {
+            if (force || e.target.classList.contains('modal-overlay')) {
+                document.getElementById('calcModal').classList.remove('active');
+            }
+        }
+
+        // Input Formatting (Comma)
+        function formatInput(input) {
+            let value = input.value.replace(/[^0-9]/g, '');
+            if (value) {
+                input.value = parseInt(value).toLocaleString();
+            }
+        }
+
+        // Helper: Floor to nearest 10 won
+        function floor10(num) {
+            return Math.floor(num / 10) * 10;
+        }
+
+        // Calculation Logic
+        function calculateInsurance() {
+            const rawValue = document.getElementById('salaryInput').value.replace(/,/g, '');
+            const salary = parseInt(rawValue);
+
+            if (!salary || isNaN(salary)) {
+                alert("월 급여를 입력해주세요.");
+                return;
+            }
+
+            // 1. 국민연금: 4.75%
+            let pension = salary * 0.0475;
+            pension = floor10(pension); // 10원 미만 절사
+            if (pension > 286650) pension = 286650;
+            if (pension < 18000) pension = 18000;
+            
+            // 2. 건강보험: 3.595%
+            let health = salary * 0.03595;
+            health = floor10(health); // 10원 미만 절사
+            if (health > 4591740) health = 4591740;
+            if (health < 20160) health = 20160;
+
+            // 3. 장기요양: 0.4724%
+            let care = salary * 0.004724;
+            care = floor10(care); // 10원 미만 절사
+
+            // 4. 고용보험: 0.9%
+            let employ = salary * 0.009;
+            employ = floor10(employ); // 10원 미만 절사
+
+            // 합계
+            const total = pension + health + care + employ;
+
+            // 결과 표시
+            document.getElementById('res-pension').innerText = pension.toLocaleString() + '원';
+            document.getElementById('res-health').innerText = health.toLocaleString() + '원';
+            document.getElementById('res-care').innerText = care.toLocaleString() + '원';
+            document.getElementById('res-employ').innerText = employ.toLocaleString() + '원';
+            document.getElementById('res-total').innerText = total.toLocaleString() + '원';
+
+            document.getElementById('resultArea').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <!-- 모바일 최적화 뷰포트 설정 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI기반 사내 문의 FAQ</title>
+    <!-- 아이콘 사용을 위한 라이브러리 (폰트어썸 유사) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 1. 디자인 시스템 (색상 및 기본 설정) */
+        :root {
+            --primary-color: #4A90E2;       /* 메인 블루 */
+            --secondary-color: #357ABD;     /* 진한 블루 (클릭 시) */
+            --accent-color: #FF6B6B;        /* 강조 색상 (문의 버튼 등) */
+            --bg-color: #F5F7FA;            /* 전체 배경색 */
+            --card-bg: #ffffff;             /* 카드 배경색 */
+            --text-main: #333333;           /* 기본 텍스트 */
+            --text-sub: #666666;            /* 보조 텍스트 */
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* 부드러운 그림자 */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            
+            /* [수정됨] 아이폰 노치/다이내믹 아일랜드 대응 및 전체 여백 조정 */
+            padding: 20px; /* 좌우 기본 여백 */
+            padding-top: calc(env(safe-area-inset-top) + 50px); /* 노치 안전 영역 + 50px 추가 여백 */
+            padding-bottom: 80px; /* 하단 버튼 공간 확보 */
+            
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 80%; /* 기본(PC/태블릿)은 80% */
+            max-width: 600px;
+            transition: width 0.3s ease; /* 부드러운 전환 효과 */
+        }
+
+        /* [수정됨] 모바일 대응 미디어 쿼리 */
+        @media (max-width: 768px) {
+            .container {
+                width: 95%; /* 모바일에서는 95%로 넓게 사용 */
+                padding: 0 5px;
+            }
+            body {
+                padding: 15px 10px; /* 모바일에서 바디 여백도 조금 줄임 */
+            }
+        }
+
+        /* 2. 헤더 디자인 */
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        h1 {
+            font-size: 1.6rem;
+            margin: 0 0 10px 0;
+            color: var(--text-main);
+        }
+        .description {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* 3. 필터 버튼 (가로 스크롤 및 줄바꿈 방지 개선) */
+        .filter-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        .filter-container {
+            display: flex; /* inline-flex -> flex 로 변경하여 유연성 확보 */
+            gap: 8px;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 25px;
+            
+            /* 모바일에서 버튼이 많을 경우 자연스럽게 스크롤 처리 */
+            overflow-x: auto;
+            max-width: 100%;
+            -webkit-overflow-scrolling: touch; /* 부드러운 스크롤 */
+            scrollbar-width: none; /* 스크롤바 숨김 (파이어폭스) */
+        }
+        
+        /* 스크롤바 숨김 (크롬, 사파리) */
+        .filter-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap; /* [중요] 글자 줄바꿈 절대 방지 */
+            flex-shrink: 0; /* 공간이 부족해도 버튼 크기 줄어들지 않음 */
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 2px 4px rgba(74, 144, 226, 0.3);
+        }
+        
+        .filter-btn:hover:not(.active) {
+            background-color: #e0e7ff;
+            color: var(--primary-color);
+        }
+
+        /* 4. 아코디언 리스트 */
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .faq-item {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .faq-question {
+            padding: 18px 20px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+        
+        .faq-question span {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-icon {
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0, 1, 0, 1);
+            background-color: #fafafa;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .faq-answer-content {
+            padding: 20px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+        }
+
+        /* 배지 스타일 */
+        .badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .badge.연차 { background-color: #e3f2fd; color: #1565c0; }
+        .badge.급여 { background-color: #fff3e0; color: #e65100; }
+        .badge.증명서 { background-color: #e8f5e9; color: #2e7d32; }
+
+        /* 5. 우측 하단 플로팅 버튼 (문의하기) */
+        .fab-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: transform 0.2s, background-color 0.2s;
+            z-index: 100;
+        }
+        
+        .fab-btn:hover {
+            transform: scale(1.05);
+            background-color: var(--secondary-color);
+        }
+        
+        .fab-label {
+            position: absolute;
+            bottom: -20px;
+            font-size: 12px;
+            color: var(--text-sub);
+            font-weight: 600;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* 6. 모달 팝업 디자인 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* [수정] 배경을 더 투명하게(0.4 -> 0.3) 하고 블러 강도를 높임(5px -> 10px) */
+            background: rgba(0, 0, 0, 0.3); 
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px); /* 사파리 호환 */
+            display: none; /* JS로 제어 */
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-card {
+            background: white;
+            /* [핵심 수정] 비율(%) 대신 고정 여백(calc)을 사용하여 작은 화면에서도 항상 30px 여백 확보 */
+            width: calc(100% - 60px); 
+            max-width: 350px;    /* PC/태블릿: 아무리 넓어도 350px까지만 커짐 */
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+
+        .modal-overlay.show .modal-card {
+            transform: translateY(0);
+        }
+
+        .modal-icon {
+            font-size: 40px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .modal-text {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        /* 연락처 정보 스타일 수정 (링크 스타일) */
+        .contact-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        
+        .contact-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .contact-row i {
+            width: 25px;
+            color: var(--primary-color);
+            text-align: center;
+            margin-right: 8px;
+        }
+
+        .contact-link {
+            text-decoration: none;
+            color: var(--text-main);
+            transition: color 0.2s;
+            border-bottom: 1px dotted #ccc;
+        }
+
+        .contact-link:hover {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .google-form-btn {
+            display: block;
+            width: 100%;
+            background-color: #fff;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            padding: 10px 0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+
+        .google-form-btn:hover {
+            background-color: #f0f7ff;
+        }
+
+        .close-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 0;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .close-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1><i class="fas fa-robot" style="color:var(--primary-color); margin-right:8px;"></i>사내 문의 FAQ</h1>
+        <p class="description">자주 묻는 질문을 모았어요</p>
+    </header>
+
+    <!-- 수정된 필터 버튼 (가운데 정렬 + 스크롤 최적화) -->
+    <div class="filter-wrapper">
+        <div class="filter-container">
+            <button class="filter-btn active" onclick="filterFaq('all')">전체</button>
+            <button class="filter-btn" onclick="filterFaq('연차')">연차</button>
+            <button class="filter-btn" onclick="filterFaq('급여')">급여</button>
+            <button class="filter-btn" onclick="filterFaq('증명서')">증명서</button>
+        </div>
+    </div>
+
+    <!-- 질문 리스트 -->
+    <div id="faq-list" class="faq-list">
+        <!-- 1. 연차 -->
+        <div class="faq-item" data-category="연차">
+            <div class="faq-question">
+                <span><span class="badge 연차">연차</span>입사 1년 미만 직원의 연차 기준은?</span>
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p><strong>[근로기준법 제60조 근거]</strong></p>
+                    <p>입사 후 1년이 안 된 기간에는 <strong>1개월 개근 시 1일, 총 11일</strong>의 유급 휴가가 발생합니다. 발생한 연차는 입사일로부터 <strong>1년이 되기 전날까지</strong> 사용하실 수 있습니다.</p>
+                    <p>참고: 우리 회사는 회계연도 기준으로 연차를 운영하고 있습니다.</p>
+                    <hr style="border:0; border-top:1px dashed #ddd; margin:15px 0;">
+                    <p style="color:#d32f2f; font-size:0.85rem;"><strong>❗정확한 기준은 반드시 회사 내규를 확인해 주세요.</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 급여 -->
+        <div class="faq-item" data-category="급여">
+            <div class="faq-question">
+                <span><span class="badge 급여">급여</span>실수령액이 왜 지난달과 다른가요?</span>
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>급여 변동의 주요 원인은 다음과 같습니다.</p>
+                    <ul style="padding-left: 20px; margin: 10px 0;">
+                        <li>연장/휴일 근로수당 반영 차이</li>
+                        <li>4대 보험 정산(예: 매년 4월 건보료 정산 등)</li>
+                        <li>소득세율 구간 변동 및 세액 조정</li>
+                    </ul>
+                    <hr style="border:0; border-top:1px dashed #ddd; margin:15px 0;">
+                    <p style="color:#d32f2f; font-size:0.85rem;"><strong>❗상세 내역은 경영지원팀에 문의 바랍니다.</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 증명서 -->
+        <div class="faq-item" data-category="증명서">
+            <div class="faq-question">
+                <span><span class="badge 증명서">증명서</span>재직증명서 바로 발급 가능한가요?</span>
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>금융기관이나 공공기관 제출용(직인 날인) 증명서는 신청 후 <strong>영업일 기준 1일 이내</strong> 발급됩니다.</p>
+                    <p>그룹웨어 전자결재를 통해 '증명서 발급 신청서'를 작성해 주시면, PDF 파일 또는 원본으로 수령 가능합니다.</p>
+                    <hr style="border:0; border-top:1px dashed #ddd; margin:15px 0;">
+                    <p style="color:#d32f2f; font-size:0.85rem;"><strong>💬 긴급한 요청은 담당자에게 메신저로 연락해 주세요.</strong></p>
+                </div>
+            </div>
+        </div>
+        
+         <!-- 4. 연차 (추가 예시) -->
+         <div class="faq-item" data-category="연차">
+            <div class="faq-question">
+                <span><span class="badge 연차">연차</span>반차 사용 시간 기준은?</span>
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>오전 반차는 <strong>09:00~13:00</strong>,<br>오후 반차는 <strong>14:00~18:00</strong>입니다.</p>
+                    <p>점심시간(13:00~14:00)은 휴게시간이므로, 근무 시간(4시간) 산정에 포함되지 않습니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 우측 하단 플로팅 버튼 -->
+<button class="fab-btn" onclick="openModal()" aria-label="담당자 문의">
+    <i class="fas fa-comment-dots"></i>
+    <span class="fab-label" style="display:none;">문의</span>
+</button>
+
+<!-- 모달 팝업 -->
+<div id="contactModal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-card">
+        <div class="modal-icon">
+            <i class="fas fa-headset"></i>
+        </div>
+        <h3 class="modal-title">문의하기</h3>
+        <p class="modal-text">FAQ에서 해결되지 않은 내용은<br>담당자에게 직접 문의해주세요.</p>
+        
+        <div class="contact-info">
+            <div class="contact-row">
+                <i class="fas fa-user"></i> <strong>경영지원팀 윤은혜</strong>
+            </div>
+            <div class="contact-row">
+                <i class="fas fa-phone"></i> 
+                <!-- 전화 연동 링크 -->
+                <a href="tel:0212345678" class="contact-link">02-1234-5678(내선 100)</a>
+            </div>
+            <div class="contact-row">
+                <i class="fas fa-envelope"></i> 
+                <!-- 이메일 연동 링크 -->
+                <a href="mailto:hr_team@company.com" class="contact-link">hr_team@company.com</a>
+            </div>
+            <div class="contact-row">
+                <i class="fas fa-clock"></i> 평일 09:00 - 18:00
+            </div>
+        </div>
+
+        <!-- 구글 폼 연동 버튼 -->
+        <a href="https://forms.google.com/" target="_blank" class="google-form-btn">
+            <i class="fab fa-google" style="margin-right:5px;"></i> 1:1 문의 남기기 (Google Form)
+        </a>
+
+        <button class="close-btn" onclick="closeModal(null)">닫기</button>
+    </div>
+</div>
+
+<script>
+    // 1. 아코디언 기능
+    const questions = document.querySelectorAll('.faq-question');
+    questions.forEach(question => {
+        question.addEventListener('click', () => {
+            const item = question.parentNode;
+            const answer = question.nextElementSibling;
+            const isActive = item.classList.contains('active');
+            
+            // 아코디언 동작: 다른 것들 닫기 (선택사항)
+            document.querySelectorAll('.faq-item').forEach(i => {
+                if(i !== item) {
+                    i.classList.remove('active');
+                    i.querySelector('.faq-answer').style.maxHeight = null;
+                }
+            });
+
+            if (!isActive) {
+                item.classList.add('active');
+                answer.style.maxHeight = answer.scrollHeight + "px";
+            } else {
+                item.classList.remove('active');
+                answer.style.maxHeight = null;
+            }
+        });
+    });
+
+    // 2. 카테고리 필터링
+    function filterFaq(category) {
+        const items = document.querySelectorAll('.faq-item');
+        const buttons = document.querySelectorAll('.filter-btn');
+
+        buttons.forEach(btn => {
+            if (btn.innerText === category || (category === 'all' && btn.innerText === '전체')) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        items.forEach(item => {
+            if (category === 'all' || item.dataset.category === category) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    // 3. 모달 팝업 제어
+    function openModal() {
+        const modal = document.getElementById('contactModal');
+        modal.classList.add('show');
+    }
+
+    function closeModal(event) {
+        // 배경을 클릭했거나 닫기 버튼을 클릭했을 때만 닫기
+        if (!event || event.target.id === 'contactModal' || event.target.tagName === 'BUTTON') {
+            const modal = document.getElementById('contactModal');
+            modal.classList.remove('show');
+        }
+    }
+</script>
+
+</body>
+</html>

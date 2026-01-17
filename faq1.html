@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI기반 사내 문의 FAQ</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* ========================================
+           미니멀 화이트 디자인 시스템
+           ======================================== */
+        :root {
+            /* Primary Colors */
+            --primary-color: #4A90E2;
+            --primary-light: #E8F2FC;
+            --primary-dark: #357ABD;
+            
+            /* Background Colors */
+            --bg-color: #F5F7FA;
+            --card-bg: #FFFFFF;
+            --answer-bg: #FAFBFC;
+            
+            /* Text Colors */
+            --text-main: #1A1A2E;
+            --text-sub: #6B7280;
+            --text-light: #9CA3AF;
+            
+            /* Badge Colors */
+            --badge-blue: #E0EDFF;
+            --badge-blue-text: #1E5FC2;
+            --badge-orange: #FFF0E5;
+            --badge-orange-text: #D35400;
+            --badge-green: #E6F7ED;
+            --badge-green-text: #1B7340;
+            
+            /* Effects */
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-full: 50px;
+            
+            /* Transitions */
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 24px;
+            padding-top: calc(env(safe-area-inset-top) + 40px);
+            padding-bottom: 100px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 640px;
+        }
+
+        /* ========================================
+           헤더 디자인
+           ======================================== */
+        header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 0 16px;
+        }
+
+        .header-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary-color), #6BA3E8);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .header-icon i {
+            font-size: 24px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .description {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            font-weight: 400;
+        }
+
+        /* ========================================
+           필터 버튼 (Pill Style)
+           ======================================== */
+        .filter-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 24px;
+            padding: 0 8px;
+        }
+
+        .filter-container {
+            display: flex;
+            gap: 8px;
+            padding: 6px;
+            background: var(--card-bg);
+            border-radius: var(--radius-full);
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+            max-width: 100%;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .filter-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--radius-full);
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .filter-btn:hover:not(.active) {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+        }
+
+        /* ========================================
+           FAQ 카드 리스트
+           ======================================== */
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .faq-item {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .faq-item:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .faq-item.active {
+            border-color: var(--primary-light);
+            box-shadow: var(--shadow-md);
+        }
+
+        .faq-question {
+            padding: 18px 20px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            user-select: none;
+            transition: var(--transition);
+        }
+
+        .faq-question:hover {
+            background-color: var(--answer-bg);
+        }
+
+        .faq-question span {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .faq-question-text {
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        .toggle-icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--bg-color);
+            color: var(--text-sub);
+            font-size: 12px;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .faq-item.active .toggle-icon {
+            background: var(--primary-color);
+            color: white;
+            transform: rotate(180deg);
+        }
+
+        /* 배지 스타일 */
+        .badge {
+            font-size: 0.75rem;
+            padding: 5px 10px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .badge.연차 {
+            background-color: var(--badge-blue);
+            color: var(--badge-blue-text);
+        }
+
+        .badge.급여 {
+            background-color: var(--badge-orange);
+            color: var(--badge-orange-text);
+        }
+
+        .badge.증명서 {
+            background-color: var(--badge-green);
+            color: var(--badge-green-text);
+        }
+
+        /* 답변 영역 */
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .faq-answer-content {
+            padding: 0 20px 20px 20px;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: var(--text-sub);
+        }
+
+        .faq-answer-content p {
+            margin-bottom: 12px;
+        }
+
+        .faq-answer-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .faq-answer-content strong {
+            color: var(--text-main);
+        }
+
+        .faq-answer-content ul {
+            padding-left: 20px;
+            margin: 12px 0;
+        }
+
+        .faq-answer-content li {
+            margin-bottom: 6px;
+        }
+
+        .divider {
+            border: 0;
+            border-top: 1px dashed #E5E7EB;
+            margin: 16px 0;
+        }
+
+        .notice {
+            background: #FEF3F2;
+            color: #B91C1C;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .tip {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* ========================================
+           플로팅 버튼
+           ======================================== */
+        .fab-btn {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary-color), #6BA3E8);
+            color: white;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 4px 16px rgba(74, 144, 226, 0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            transition: var(--transition);
+            z-index: 100;
+        }
+
+        .fab-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(74, 144, 226, 0.5);
+        }
+
+        .fab-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* ========================================
+           모달 팝업
+           ======================================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-card {
+            background: white;
+            width: 100%;
+            max-width: 360px;
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(20px) scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal-overlay.show .modal-card {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--primary-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .modal-icon i {
+            font-size: 28px;
+            color: var(--primary-color);
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .modal-text {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .contact-info {
+            background: var(--bg-color);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .contact-row {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .contact-row:not(:last-child) {
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .contact-row i {
+            width: 32px;
+            height: 32px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            margin-right: 12px;
+            font-size: 14px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .contact-link {
+            text-decoration: none;
+            color: var(--text-main);
+            transition: color 0.2s;
+        }
+
+        .contact-link:hover {
+            color: var(--primary-color);
+        }
+
+        .google-form-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            background: white;
+            color: var(--text-main);
+            border: 1px solid #E5E7EB;
+            padding: 14px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            margin-bottom: 12px;
+            transition: var(--transition);
+        }
+
+        .google-form-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: var(--primary-light);
+        }
+
+        .close-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px;
+            width: 100%;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* ========================================
+           반응형 디자인
+           ======================================== */
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+                padding-top: calc(env(safe-area-inset-top) + 24px);
+            }
+
+            h1 {
+                font-size: 1.35rem;
+            }
+
+            .header-icon {
+                width: 48px;
+                height: 48px;
+            }
+
+            .header-icon i {
+                font-size: 20px;
+            }
+
+            .filter-btn {
+                padding: 8px 16px;
+                font-size: 0.8rem;
+            }
+
+            .faq-question {
+                padding: 16px;
+            }
+
+            .faq-answer-content {
+                padding: 0 16px 16px 16px;
+            }
+
+            .fab-btn {
+                width: 52px;
+                height: 52px;
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding: 40px;
+            }
+
+            .container {
+                max-width: 720px;
+            }
+
+            header {
+                margin-bottom: 40px;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .faq-list {
+                gap: 16px;
+            }
+
+            .faq-question {
+                padding: 22px 24px;
+                font-size: 1rem;
+            }
+
+            .faq-answer-content {
+                padding: 0 24px 24px 24px;
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="header-icon">
+            <i class="fas fa-robot"></i>
+        </div>
+        <h1>사내 문의 FAQ</h1>
+        <p class="description">자주 묻는 질문을 모았어요</p>
+    </header>
+
+    <!-- 필터 버튼 -->
+    <div class="filter-wrapper">
+        <div class="filter-container">
+            <button class="filter-btn active" onclick="filterFaq('all')">전체</button>
+            <button class="filter-btn" onclick="filterFaq('연차')">연차</button>
+            <button class="filter-btn" onclick="filterFaq('급여')">급여</button>
+            <button class="filter-btn" onclick="filterFaq('증명서')">증명서</button>
+        </div>
+    </div>
+
+    <!-- FAQ 리스트 -->
+    <div id="faq-list" class="faq-list">
+        <!-- 1. 연차 -->
+        <div class="faq-item" data-category="연차">
+            <div class="faq-question">
+                <span>
+                    <span class="badge 연차">연차</span>
+                    <span class="faq-question-text">입사 1년 미만 직원의 연차 기준은?</span>
+                </span>
+                <div class="toggle-icon">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p><strong>[근로기준법 제60조 근거]</strong></p>
+                    <p>입사 후 1년이 안 된 기간에는 <strong>1개월 개근 시 1일, 총 11일</strong>의 유급 휴가가 발생합니다. 발생한 연차는 입사일로부터 <strong>1년이 되기 전날까지</strong> 사용하실 수 있습니다.</p>
+                    <p>참고: 우리 회사는 회계연도 기준으로 연차를 운영하고 있습니다.</p>
+                    <hr class="divider">
+                    <div class="notice">❗ 정확한 기준은 반드시 회사 내규를 확인해 주세요.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 급여 -->
+        <div class="faq-item" data-category="급여">
+            <div class="faq-question">
+                <span>
+                    <span class="badge 급여">급여</span>
+                    <span class="faq-question-text">실수령액이 왜 지난달과 다른가요?</span>
+                </span>
+                <div class="toggle-icon">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>급여 변동의 주요 원인은 다음과 같습니다.</p>
+                    <ul>
+                        <li>연장/휴일 근로수당 반영 차이</li>
+                        <li>4대 보험 정산(예: 매년 4월 건보료 정산 등)</li>
+                        <li>소득세율 구간 변동 및 세액 조정</li>
+                    </ul>
+                    <hr class="divider">
+                    <div class="notice">❗ 상세 내역은 경영지원팀에 문의 바랍니다.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 증명서 -->
+        <div class="faq-item" data-category="증명서">
+            <div class="faq-question">
+                <span>
+                    <span class="badge 증명서">증명서</span>
+                    <span class="faq-question-text">재직증명서 바로 발급 가능한가요?</span>
+                </span>
+                <div class="toggle-icon">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>금융기관이나 공공기관 제출용(직인 날인) 증명서는 신청 후 <strong>영업일 기준 1일 이내</strong> 발급됩니다.</p>
+                    <p>그룹웨어 전자결재를 통해 '증명서 발급 신청서'를 작성해 주시면, PDF 파일 또는 원본으로 수령 가능합니다.</p>
+                    <hr class="divider">
+                    <div class="tip">💬 긴급한 요청은 담당자에게 메신저로 연락해 주세요.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. 연차 (추가) -->
+        <div class="faq-item" data-category="연차">
+            <div class="faq-question">
+                <span>
+                    <span class="badge 연차">연차</span>
+                    <span class="faq-question-text">반차 사용 시간 기준은?</span>
+                </span>
+                <div class="toggle-icon">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>오전 반차는 <strong>09:00~13:00</strong>,<br>오후 반차는 <strong>14:00~18:00</strong>입니다.</p>
+                    <p>점심시간(13:00~14:00)은 휴게시간이므로, 근무 시간(4시간) 산정에 포함되지 않습니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 플로팅 버튼 -->
+<button class="fab-btn" onclick="openModal()" aria-label="담당자 문의">
+    <i class="fas fa-comment-dots"></i>
+</button>
+
+<!-- 모달 팝업 -->
+<div id="contactModal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <div class="modal-icon">
+            <i class="fas fa-headset"></i>
+        </div>
+        <h3 class="modal-title">문의하기</h3>
+        <p class="modal-text">FAQ에서 해결되지 않은 내용은<br>담당자에게 직접 문의해주세요.</p>
+        
+        <div class="contact-info">
+            <div class="contact-row">
+                <i class="fas fa-user"></i>
+                <strong>경영지원팀 윤은혜</strong>
+            </div>
+            <div class="contact-row">
+                <i class="fas fa-phone"></i>
+                <a href="tel:0212345678" class="contact-link">02-1234-5678 (내선 100)</a>
+            </div>
+            <div class="contact-row">
+                <i class="fas fa-envelope"></i>
+                <a href="mailto:hr_team@company.com" class="contact-link">hr_team@company.com</a>
+            </div>
+            <div class="contact-row">
+                <i class="fas fa-clock"></i>
+                <span>평일 09:00 - 18:00</span>
+            </div>
+        </div>
+
+        <a href="https://forms.google.com/" target="_blank" class="google-form-btn">
+            <i class="fab fa-google"></i>
+            1:1 문의 남기기
+        </a>
+
+        <button class="close-btn" onclick="closeModal(null)">닫기</button>
+    </div>
+</div>
+
+<script>
+    // 아코디언 기능
+    const questions = document.querySelectorAll('.faq-question');
+    questions.forEach(question => {
+        question.addEventListener('click', () => {
+            const item = question.parentNode;
+            const answer = question.nextElementSibling;
+            const isActive = item.classList.contains('active');
+            
+            // 다른 아코디언 닫기
+            document.querySelectorAll('.faq-item').forEach(i => {
+                if(i !== item) {
+                    i.classList.remove('active');
+                    i.querySelector('.faq-answer').style.maxHeight = null;
+                }
+            });
+
+            if (!isActive) {
+                item.classList.add('active');
+                answer.style.maxHeight = answer.scrollHeight + "px";
+            } else {
+                item.classList.remove('active');
+                answer.style.maxHeight = null;
+            }
+        });
+    });
+
+    // 카테고리 필터링
+    function filterFaq(category) {
+        const items = document.querySelectorAll('.faq-item');
+        const buttons = document.querySelectorAll('.filter-btn');
+
+        buttons.forEach(btn => {
+            if (btn.innerText === category || (category === 'all' && btn.innerText === '전체')) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        items.forEach(item => {
+            // 필터 변경 시 열린 아코디언 닫기
+            item.classList.remove('active');
+            item.querySelector('.faq-answer').style.maxHeight = null;
+            
+            if (category === 'all' || item.dataset.category === category) {
+                item.style.display = 'block';
+                item.style.animation = 'fadeIn 0.3s ease';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    // 모달 제어
+    function openModal() {
+        const modal = document.getElementById('contactModal');
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(event) {
+        if (!event || event.target.id === 'contactModal') {
+            const modal = document.getElementById('contactModal');
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+    }
+
+    // ESC 키로 모달 닫기
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeModal(null);
+        }
+    });
+</script>
+
+</body>
+</html>

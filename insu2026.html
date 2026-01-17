@@ -292,8 +292,8 @@
         }
 
         .result-net {
-            margin-bottom: 0.75rem; /* 수정됨: 1rem -> 0.75rem (상단 실선 여백 축소 및 통일) */
-            padding-bottom: 0.75rem; /* 수정됨: 1rem -> 0.75rem */
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.75rem;
             border-bottom: 1px solid #E5E7EB;
             display: flex;
             justify-content: space-between;
@@ -754,7 +754,10 @@
             document.getElementById('res-local').innerText = localTax.toLocaleString() + '원';
             document.getElementById('res-total').innerText = total2026.toLocaleString() + '원';
             document.getElementById('res-net').innerText = netPay.toLocaleString() + '원';
-            document.getElementById('diffBadge').innerText = diff.toLocaleString() + '원 인상 ▲';
+            
+            // 변경된 부분: 2025년 대비 인상분 텍스트 포맷 수정
+            document.getElementById('diffBadge').innerText = '+' + diff.toLocaleString() + '원 ▲';
+            
             document.getElementById('resultArea').style.display = 'block';
         }
     </script>

@@ -52,50 +52,23 @@
             }
         }
 
-      /* 2. 헤더 디자인 (좌측 정렬 + 우측 아이콘) */
+        /* 2. 헤더 디자인 */
         header {
             text-align: center;
-            margin-bottom: 32px;
-            padding: 0 16px;
+            margin-bottom: 25px;
         }
-
-         /* 로봇 얼굴 아이콘 스타일 */
-        .header-icon {
-            width: 55px;
-            height: 55px;
-            background-color: #e3f2fd; /* 연한 파란 배경 */
-            border-radius: 50%; /* 원형 */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            color: var(--primary-color);
-            flex-shrink: 0;
-            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.2);
-            margin-left: 15px;
-        }
-
-        .header-icon i {
-            font-size: 24px;
-            color: white;
-        }
-
         h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 1.6rem;
+            margin: 0 0 10px 0;
             color: var(--text-main);
-            margin-bottom: 8px;
-            letter-spacing: -0.02em;
         }
-
         .description {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: var(--text-sub);
-            font-weight: 400;
+            margin: 0;
+            line-height: 1.5;
         }
 
-
-      
         /* 3. 필터 버튼 (가로 스크롤 및 줄바꿈 방지 개선) */
         .filter-wrapper {
             display: flex;
@@ -203,46 +176,7 @@
             line-height: 1.6;
             color: #444;
         }
-        /* [수정] 질문 내용 래퍼 (배지와 텍스트 수직 정렬) */
-        .q-wrap {
-            display: flex;
-            flex-direction: column; /* 위아래 배치 */
-            align-items: flex-start; /* 왼쪽 정렬 */
-            gap: 8px; /* 배지와 질문 사이 간격 */
-        }
 
-        .question-text {
-            font-weight: 600;
-            font-size: 1.05rem;
-            color: var(--text-main);
-            line-height: 1.4;
-        }
-
-        .toggle-icon {
-            color: var(--primary-color);
-            transition: transform 0.3s ease;
-            margin-left: 15px; /* 텍스트와 아이콘 사이 최소 간격 */
-            flex-shrink: 0;
-        }
-
-        .faq-item.active .toggle-icon {
-            transform: rotate(180deg);
-        }
-
-        .faq-answer {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s cubic-bezier(0, 1, 0, 1);
-            background-color: #fafafa;
-            border-top: 1px solid #f0f0f0;
-        }
-
-        .faq-answer-content {
-            padding: 20px;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: #444;
-        }
         /* 배지 스타일 */
         .badge {
             font-size: 0.75rem;
@@ -250,7 +184,6 @@
             border-radius: 6px;
             font-weight: bold;
             white-space: nowrap;
-            display: inline-block; /* 블록 형태로 변경 */
         }
         .badge.연차 { background-color: #e3f2fd; color: #1565c0; }
         .badge.급여 { background-color: #fff3e0; color: #e65100; }
@@ -293,22 +226,22 @@
         }
 
         /* 6. 모달 팝업 디자인 */
-       .modal-overlay {
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.25);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            display: none;
+            /* [수정] 배경을 더 투명하게(0.4 -> 0.3) 하고 블러 강도를 높임(5px -> 10px) */
+            background: rgba(0, 0, 0, 0.3); 
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px); /* 사파리 호환 */
+            display: none; /* JS로 제어 */
             align-items: center;
             justify-content: center;
             z-index: 1000;
             opacity: 0;
             transition: opacity 0.3s ease;
-            padding: 20px;
         }
 
         .modal-overlay.show {
@@ -318,49 +251,42 @@
 
         .modal-card {
             background: white;
-            width: 100%;
-            max-width: 360px;
-            border-radius: var(--radius-lg);
-            padding: 28px;
+            /* [핵심 수정] 비율(%) 대신 고정 여백(calc)을 사용하여 작은 화면에서도 항상 30px 여백 확보 */
+            width: calc(100% - 60px); 
+            max-width: 350px;    /* PC/태블릿: 아무리 넓어도 350px까지만 커짐 */
+            border-radius: 16px;
+            padding: 25px;
             text-align: center;
-            box-shadow: var(--shadow-lg);
-            transform: translateY(20px) scale(0.95);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
         }
 
+
         .modal-overlay.show .modal-card {
-            transform: translateY(0) scale(1);
+            transform: translateY(0);
         }
 
         .modal-icon {
-            width: 64px;
-            height: 64px;
-            background: var(--primary-light);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-        }
-
-        .modal-icon i {
-            font-size: 28px;
+            font-size: 40px;
             color: var(--primary-color);
+            margin-bottom: 15px;
         }
 
         .modal-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
             color: var(--text-main);
         }
 
         .modal-text {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: var(--text-sub);
-            margin-bottom: 24px;
-            line-height: 1.6;
+            margin-bottom: 20px;
+            line-height: 1.5;
         }
+
         /* 연락처 정보 스타일 수정 (링크 스타일) */
         .contact-info {
             background: #f8f9fa;
@@ -437,15 +363,9 @@
 <body>
 
 <div class="container">
-       <!-- 헤더 영역 (좌측 정렬 + 우측 로봇 아이콘) -->
     <header>
-        <div class="header-text">
-            <h1>AI 사내 FAQ</h1>
-            <p class="description">인사팀이 정리한 주요 질문 모음</p>
-        </div>
-        <div class="header-icon">
-            <i class="fas fa-robot"></i>
-        </div>
+        <h1><i class="fas fa-robot" style="color:var(--primary-color); margin-right:8px;"></i>사내 문의 FAQ</h1>
+        <p class="description">자주 묻는 질문을 모았어요</p>
     </header>
 
     <!-- 수정된 필터 버튼 (가운데 정렬 + 스크롤 최적화) -->
@@ -463,9 +383,7 @@
         <!-- 1. 연차 -->
         <div class="faq-item" data-category="연차">
             <div class="faq-question">
-                  <div class="q-wrap">
                 <span><span class="badge 연차">연차</span>입사 1년 미만 직원의 연차 기준은?</span>
-                </div>
                 <i class="fas fa-chevron-down toggle-icon"></i>
             </div>
             <div class="faq-answer">
@@ -482,9 +400,7 @@
         <!-- 2. 급여 -->
         <div class="faq-item" data-category="급여">
             <div class="faq-question">
-                  <div class="q-wrap">
                 <span><span class="badge 급여">급여</span>실수령액이 왜 지난달과 다른가요?</span>
-                </div>
                 <i class="fas fa-chevron-down toggle-icon"></i>
             </div>
             <div class="faq-answer">
@@ -504,9 +420,7 @@
         <!-- 3. 증명서 -->
         <div class="faq-item" data-category="증명서">
             <div class="faq-question">
-                  <div class="q-wrap">
                 <span><span class="badge 증명서">증명서</span>재직증명서 바로 발급 가능한가요?</span>
-                </div>
                 <i class="fas fa-chevron-down toggle-icon"></i>
             </div>
             <div class="faq-answer">
@@ -522,9 +436,7 @@
          <!-- 4. 연차 (추가 예시) -->
          <div class="faq-item" data-category="연차">
             <div class="faq-question">
-                  <div class="q-wrap">
                 <span><span class="badge 연차">연차</span>반차 사용 시간 기준은?</span>
-                </div>
                 <i class="fas fa-chevron-down toggle-icon"></i>
             </div>
             <div class="faq-answer">
@@ -573,7 +485,7 @@
 
         <!-- 구글 폼 연동 버튼 -->
         <a href="https://forms.google.com/" target="_blank" class="google-form-btn">
-            <i class="fab fa-google" style="margin-right:5px;"></i> 1:1 문의 남기기
+            <i class="fab fa-google" style="margin-right:5px;"></i> 1:1 문의 남기기 (Google Form)
         </a>
 
         <button class="close-btn" onclick="closeModal(null)">닫기</button>

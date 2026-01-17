@@ -2,22 +2,32 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <!-- 모바일 최적화 뷰포트 설정 -->
+    <!-- [설정] 모바일 최적화 뷰포트 (확대/축소 방지 포함) -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AI기반 사내 문의 FAQ</title>
-    <!-- 아이콘 사용을 위한 라이브러리 (폰트어썸 유사) -->
+    <!-- [라이브러리] Font Awesome 아이콘 -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* 1. 디자인 시스템 (색상 및 기본 설정) */
+        /* ==========================================================================
+           [1] 디자인 시스템 (Design System)
+           - 전체적인 색상 테마 및 기본 설정을 정의합니다.
+           ========================================================================== */
         :root {
             --primary-color: #4A90E2;       /* 메인 블루 */
-            --secondary-color: #357ABD;     /* 진한 블루 (클릭 시) */
-            --accent-color: #FF6B6B;        /* 강조 색상 (문의 버튼 등) */
+            --secondary-color: #357ABD;     /* 진한 블루 (인터랙션 시) */
+            --accent-color: #FF6B6B;        /* 강조 색상 */
             --bg-color: #F5F7FA;            /* 전체 배경색 */
             --card-bg: #ffffff;             /* 카드 배경색 */
             --text-main: #333333;           /* 기본 텍스트 */
             --text-sub: #666666;            /* 보조 텍스트 */
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* 부드러운 그림자 */
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* 기본 그림자 */
+            --shadow-hover: 0 8px 15px rgba(0, 0, 0, 0.1); /* 호버 시 그림자 */
+        }
+
+        /* [기초 설정] */
+        * {
+            box-sizing: border-box; /* 레이아웃 계산 단순화 */
+            -webkit-tap-highlight-color: transparent; /* 모바일 터치 하이라이트 제거 */
         }
 
         body {
@@ -26,33 +36,36 @@
             color: var(--text-main);
             margin: 0;
             
-            /* [수정됨] 아이폰 노치/다이내믹 아일랜드 대응 및 전체 여백 조정 */
-            padding: 20px; /* 좌우 기본 여백 */
-            padding-top: calc(env(safe-area-inset-top) + 50px); /* 노치 안전 영역 + 50px 추가 여백 */
-            padding-bottom: 80px; /* 하단 버튼 공간 확보 */
+            /* 레이아웃 및 여백 설정 (노치 대응 포함) */
+            padding: 20px;
+            padding-top: calc(env(safe-area-inset-top) + 50px);
+            padding-bottom: 80px;
             
             display: flex;
             justify-content: center;
         }
 
         .container {
-            width: 80%; /* 기본(PC/태블릿)은 80% */
+            width: 80%;
             max-width: 600px;
-            transition: width 0.3s ease; /* 부드러운 전환 효과 */
+            transition: width 0.3s ease;
         }
 
-        /* [수정됨] 모바일 대응 미디어 쿼리 */
+        /* [반응형] 모바일 대응 */
         @media (max-width: 768px) {
             .container {
-                width: 95%; /* 모바일에서는 95%로 넓게 사용 */
+                width: 95%;
                 padding: 0 5px;
             }
             body {
-                padding: 15px 10px; /* 모바일에서 바디 여백도 조금 줄임 */
+                padding: 15px 10px;
+                padding-bottom: 90px;
             }
         }
 
-        /* 2. 헤더 디자인 */
+        /* ==========================================================================
+           [2] 헤더 및 필터 (Header & Filter)
+           ========================================================================== */
         header {
             text-align: center;
             margin-bottom: 25px;
@@ -69,7 +82,6 @@
             line-height: 1.5;
         }
 
-        /* 3. 필터 버튼 (가로 스크롤 및 줄바꿈 방지 개선) */
         .filter-wrapper {
             display: flex;
             justify-content: center;
@@ -78,20 +90,19 @@
         }
         
         .filter-container {
-            display: flex; /* inline-flex -> flex 로 변경하여 유연성 확보 */
+            display: flex;
             gap: 8px;
             padding: 5px;
             background: rgba(255, 255, 255, 0.5);
             border-radius: 25px;
             
-            /* 모바일에서 버튼이 많을 경우 자연스럽게 스크롤 처리 */
+            /* 가로 스크롤 설정 (버튼이 많을 경우) */
             overflow-x: auto;
             max-width: 100%;
-            -webkit-overflow-scrolling: touch; /* 부드러운 스크롤 */
-            scrollbar-width: none; /* 스크롤바 숨김 (파이어폭스) */
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
         }
         
-        /* 스크롤바 숨김 (크롬, 사파리) */
         .filter-container::-webkit-scrollbar {
             display: none;
         }
@@ -106,8 +117,8 @@
             color: var(--text-sub);
             cursor: pointer;
             transition: all 0.2s ease;
-            white-space: nowrap; /* [중요] 글자 줄바꿈 절대 방지 */
-            flex-shrink: 0; /* 공간이 부족해도 버튼 크기 줄어들지 않음 */
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .filter-btn.active {
@@ -121,7 +132,9 @@
             color: var(--primary-color);
         }
 
-        /* 4. 아코디언 리스트 */
+        /* ==========================================================================
+           [3] 아코디언 리스트 (FAQ List)
+           ========================================================================== */
         .faq-list {
             display: flex;
             flex-direction: column;
@@ -133,7 +146,13 @@
             border-radius: 12px;
             box-shadow: var(--shadow);
             overflow: hidden;
-            transition: transform 0.2s;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* [디자인 폴리싱] 호버 시 살짝 떠오르는 효과 */
+        .faq-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
         }
 
         .faq-question {
@@ -145,17 +164,31 @@
             justify-content: space-between;
             align-items: center;
             user-select: none;
+            width: 100%; /* 버튼 너비 확보 */
+            background: none;
+            border: none;
+            text-align: left;
+            color: inherit;
         }
         
-        .faq-question span {
+        /* [레이아웃] 배지와 질문 텍스트 수직 정렬 */
+        .question-content {
             display: flex;
-            align-items: center;
-            gap: 10px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px; /* 간격 조정 (6px -> 8px) */
+        }
+
+        .question-text {
+            line-height: 1.4; /* 줄 간격 확보 */
+            word-break: keep-all; /* 단어 단위 줄바꿈 */
         }
 
         .toggle-icon {
             color: var(--primary-color);
             transition: transform 0.3s ease;
+            margin-left: 15px;
+            flex-shrink: 0; /* 아이콘 크기 축소 방지 */
         }
 
         .faq-item.active .toggle-icon {
@@ -177,19 +210,22 @@
             color: #444;
         }
 
-        /* 배지 스타일 */
+        /* [배지 스타일] */
         .badge {
             font-size: 0.75rem;
             padding: 4px 8px;
             border-radius: 6px;
-            font-weight: bold;
+            font-weight: 700;
             white-space: nowrap;
+            display: inline-block;
         }
         .badge.연차 { background-color: #e3f2fd; color: #1565c0; }
         .badge.급여 { background-color: #fff3e0; color: #e65100; }
         .badge.증명서 { background-color: #e8f5e9; color: #2e7d32; }
 
-        /* 5. 우측 하단 플로팅 버튼 (문의하기) */
+        /* ==========================================================================
+           [4] 플로팅 액션 버튼 (FAB)
+           ========================================================================== */
         .fab-btn {
             position: fixed;
             bottom: 25px;
@@ -206,42 +242,46 @@
             align-items: center;
             justify-content: center;
             font-size: 24px;
-            transition: transform 0.2s, background-color 0.2s;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s; /* 텐션감 있는 애니메이션 */
             z-index: 100;
         }
         
         .fab-btn:hover {
-            transform: scale(1.05);
+            transform: scale(1.1);
             background-color: var(--secondary-color);
         }
-        
-        .fab-label {
-            position: absolute;
-            bottom: -20px;
-            font-size: 12px;
-            color: var(--text-sub);
-            font-weight: 600;
-            width: 100%;
-            text-align: center;
-        }
 
-        /* 6. 모달 팝업 디자인 */
+        /* ==========================================================================
+           [5] 모달 팝업 디자인 시스템 (Modal System)
+           - 별도의 독립적인 스타일 범위를 가집니다.
+           ========================================================================== */
         .modal-overlay {
+            /* 모달 전용 변수 스코프 */
+            --primary-color: #4A90E2;
+            --primary-light: #E8F2FC;
+            --primary-dark: #357ABD;
+            --bg-color: #F5F7FA;
+            --text-main: #1A1A2E;
+            --text-sub: #6B7280;
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            /* [수정] 배경을 더 투명하게(0.4 -> 0.3) 하고 블러 강도를 높임(5px -> 10px) */
-            background: rgba(0, 0, 0, 0.3); 
-            backdrop-filter: blur(10px); 
-            -webkit-backdrop-filter: blur(10px); /* 사파리 호환 */
-            display: none; /* JS로 제어 */
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
             align-items: center;
             justify-content: center;
             z-index: 1000;
             opacity: 0;
             transition: opacity 0.3s ease;
+            padding: 20px;
         }
 
         .modal-overlay.show {
@@ -251,141 +291,168 @@
 
         .modal-card {
             background: white;
-            /* [핵심 수정] 비율(%) 대신 고정 여백(calc)을 사용하여 작은 화면에서도 항상 30px 여백 확보 */
-            width: calc(100% - 60px); 
-            max-width: 350px;    /* PC/태블릿: 아무리 넓어도 350px까지만 커짐 */
-            border-radius: 16px;
-            padding: 25px;
+            width: 100%;
+            max-width: 360px;
+            border-radius: var(--radius-lg);
+            padding: 28px;
             text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            transform: translateY(20px);
-            transition: transform 0.3s ease;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(20px) scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-
         .modal-overlay.show .modal-card {
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
         }
 
         .modal-icon {
-            font-size: 40px;
+            width: 64px;
+            height: 64px;
+            background: var(--primary-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .modal-icon i {
+            font-size: 28px;
             color: var(--primary-color);
-            margin-bottom: 15px;
         }
 
         .modal-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 10px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 8px;
             color: var(--text-main);
+            margin-top: 0;
         }
 
         .modal-text {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: var(--text-sub);
-            margin-bottom: 20px;
-            line-height: 1.5;
+            margin-bottom: 24px;
+            line-height: 1.6;
         }
 
-        /* 연락처 정보 스타일 수정 (링크 스타일) */
         .contact-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
+            background: var(--bg-color);
+            padding: 16px;
+            border-radius: var(--radius-md);
             margin-bottom: 20px;
             text-align: left;
-            font-size: 0.9rem;
         }
-        
+
         .contact-row {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
+            padding: 8px 0;
+            font-size: 0.9rem;
+            color: var(--text-main);
         }
-        
+
+        .contact-row:not(:last-child) {
+            border-bottom: 1px solid #E5E7EB;
+        }
+
         .contact-row i {
-            width: 25px;
+            width: 32px;
+            height: 32px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: var(--primary-color);
-            text-align: center;
-            margin-right: 8px;
+            margin-right: 12px;
+            font-size: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         .contact-link {
             text-decoration: none;
             color: var(--text-main);
             transition: color 0.2s;
-            border-bottom: 1px dotted #ccc;
         }
 
         .contact-link:hover {
             color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
         }
 
         .google-form-btn {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             width: 100%;
-            background-color: #fff;
-            color: var(--primary-color);
-            border: 1px solid var(--primary-color);
-            padding: 10px 0;
-            border-radius: 8px;
-            font-size: 0.95rem;
+            background: white;
+            color: var(--text-main);
+            border: 1px solid #E5E7EB;
+            padding: 14px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
             font-weight: 600;
             text-decoration: none;
-            margin-bottom: 10px;
-            transition: all 0.2s;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
         }
 
         .google-form-btn:hover {
-            background-color: #f0f7ff;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: var(--primary-light);
         }
 
         .close-btn {
-            background-color: var(--primary-color);
+            background: var(--primary-color);
             color: white;
             border: none;
-            padding: 12px 0;
+            padding: 14px;
             width: 100%;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.2s ease;
         }
 
         .close-btn:hover {
-            background-color: var(--secondary-color);
+            background: var(--primary-dark);
         }
-
     </style>
 </head>
 <body>
 
 <div class="container">
+    <!-- 헤더 -->
     <header>
         <h1><i class="fas fa-robot" style="color:var(--primary-color); margin-right:8px;"></i>사내 문의 FAQ</h1>
         <p class="description">자주 묻는 질문을 모았어요</p>
     </header>
 
-    <!-- 수정된 필터 버튼 (가운데 정렬 + 스크롤 최적화) -->
+    <!-- 필터 버튼 (가로 스크롤) -->
     <div class="filter-wrapper">
         <div class="filter-container">
-            <button class="filter-btn active" onclick="filterFaq('all')">전체</button>
-            <button class="filter-btn" onclick="filterFaq('연차')">연차</button>
-            <button class="filter-btn" onclick="filterFaq('급여')">급여</button>
-            <button class="filter-btn" onclick="filterFaq('증명서')">증명서</button>
+            <button type="button" class="filter-btn active" onclick="filterFaq('all')">전체</button>
+            <button type="button" class="filter-btn" onclick="filterFaq('연차')">연차</button>
+            <button type="button" class="filter-btn" onclick="filterFaq('급여')">급여</button>
+            <button type="button" class="filter-btn" onclick="filterFaq('증명서')">증명서</button>
         </div>
     </div>
 
-    <!-- 질문 리스트 -->
+    <!-- FAQ 리스트 -->
     <div id="faq-list" class="faq-list">
-        <!-- 1. 연차 -->
+        <!-- Item 1: 연차 -->
         <div class="faq-item" data-category="연차">
-            <div class="faq-question">
-                <span><span class="badge 연차">연차</span>입사 1년 미만 직원의 연차 기준은?</span>
+            <!-- [접근성] 버튼 태그로 변경 및 aria-expanded 추가 (JS에서 제어) -->
+            <button type="button" class="faq-question">
+                <span class="question-content">
+                    <span class="badge 연차">연차</span>
+                    <span class="question-text">입사 1년 미만 직원의 연차 기준은?</span>
+                </span>
                 <i class="fas fa-chevron-down toggle-icon"></i>
-            </div>
+            </button>
             <div class="faq-answer">
                 <div class="faq-answer-content">
                     <p><strong>[근로기준법 제60조 근거]</strong></p>
@@ -397,12 +464,15 @@
             </div>
         </div>
 
-        <!-- 2. 급여 -->
+        <!-- Item 2: 급여 -->
         <div class="faq-item" data-category="급여">
-            <div class="faq-question">
-                <span><span class="badge 급여">급여</span>실수령액이 왜 지난달과 다른가요?</span>
+            <button type="button" class="faq-question">
+                <span class="question-content">
+                    <span class="badge 급여">급여</span>
+                    <span class="question-text">실수령액이 왜 지난달과 다른가요?</span>
+                </span>
                 <i class="fas fa-chevron-down toggle-icon"></i>
-            </div>
+            </button>
             <div class="faq-answer">
                 <div class="faq-answer-content">
                     <p>급여 변동의 주요 원인은 다음과 같습니다.</p>
@@ -417,12 +487,15 @@
             </div>
         </div>
 
-        <!-- 3. 증명서 -->
+        <!-- Item 3: 증명서 -->
         <div class="faq-item" data-category="증명서">
-            <div class="faq-question">
-                <span><span class="badge 증명서">증명서</span>재직증명서 바로 발급 가능한가요?</span>
+            <button type="button" class="faq-question">
+                <span class="question-content">
+                    <span class="badge 증명서">증명서</span>
+                    <span class="question-text">재직증명서 바로 발급 가능한가요?</span>
+                </span>
                 <i class="fas fa-chevron-down toggle-icon"></i>
-            </div>
+            </button>
             <div class="faq-answer">
                 <div class="faq-answer-content">
                     <p>금융기관이나 공공기관 제출용(직인 날인) 증명서는 신청 후 <strong>영업일 기준 1일 이내</strong> 발급됩니다.</p>
@@ -433,12 +506,15 @@
             </div>
         </div>
         
-         <!-- 4. 연차 (추가 예시) -->
+         <!-- Item 4: 연차 (추가) -->
          <div class="faq-item" data-category="연차">
-            <div class="faq-question">
-                <span><span class="badge 연차">연차</span>반차 사용 시간 기준은?</span>
+            <button type="button" class="faq-question">
+                <span class="question-content">
+                    <span class="badge 연차">연차</span>
+                    <span class="question-text">반차 사용 시간 기준은?</span>
+                </span>
                 <i class="fas fa-chevron-down toggle-icon"></i>
-            </div>
+            </button>
             <div class="faq-answer">
                 <div class="faq-answer-content">
                     <p>오전 반차는 <strong>09:00~13:00</strong>,<br>오후 반차는 <strong>14:00~18:00</strong>입니다.</p>
@@ -449,13 +525,13 @@
     </div>
 </div>
 
-<!-- 우측 하단 플로팅 버튼 -->
-<button class="fab-btn" onclick="openModal()" aria-label="담당자 문의">
+<!-- 플로팅 버튼 (FAB) -->
+<button type="button" class="fab-btn" onclick="openModal()" aria-label="담당자 문의하기">
     <i class="fas fa-comment-dots"></i>
     <span class="fab-label" style="display:none;">문의</span>
 </button>
 
-<!-- 모달 팝업 -->
+<!-- 모달 팝업 (Modal) -->
 <div id="contactModal" class="modal-overlay" onclick="closeModal(event)">
     <div class="modal-card">
         <div class="modal-icon">
@@ -470,12 +546,10 @@
             </div>
             <div class="contact-row">
                 <i class="fas fa-phone"></i> 
-                <!-- 전화 연동 링크 -->
                 <a href="tel:0212345678" class="contact-link">02-1234-5678(내선 100)</a>
             </div>
             <div class="contact-row">
                 <i class="fas fa-envelope"></i> 
-                <!-- 이메일 연동 링크 -->
                 <a href="mailto:hr_team@company.com" class="contact-link">hr_team@company.com</a>
             </div>
             <div class="contact-row">
@@ -483,47 +557,62 @@
             </div>
         </div>
 
-        <!-- 구글 폼 연동 버튼 -->
         <a href="https://forms.google.com/" target="_blank" class="google-form-btn">
-            <i class="fab fa-google" style="margin-right:5px;"></i> 1:1 문의 남기기 (Google Form)
+            <i class="fab fa-google" style="margin-right:5px;"></i> 1:1 문의 남기기
         </a>
 
-        <button class="close-btn" onclick="closeModal(null)">닫기</button>
+        <button type="button" class="close-btn" onclick="closeModal(null)">닫기</button>
     </div>
 </div>
 
 <script>
-    // 1. 아코디언 기능
+    /* ==========================================================================
+       [1] 아코디언 인터랙션 (Accordion Logic)
+       - 클릭 시 해당 항목을 열고, 나머지는 닫습니다.
+       - 접근성을 위해 aria-expanded 속성을 제어합니다.
+       ========================================================================== */
     const questions = document.querySelectorAll('.faq-question');
+    
     questions.forEach(question => {
+        // 초기화: 접근성 속성 설정
+        question.setAttribute('aria-expanded', 'false');
+
         question.addEventListener('click', () => {
             const item = question.parentNode;
             const answer = question.nextElementSibling;
             const isActive = item.classList.contains('active');
             
-            // 아코디언 동작: 다른 것들 닫기 (선택사항)
-            document.querySelectorAll('.faq-item').forEach(i => {
-                if(i !== item) {
-                    i.classList.remove('active');
-                    i.querySelector('.faq-answer').style.maxHeight = null;
+            // 다른 모든 항목 닫기
+            document.querySelectorAll('.faq-item').forEach(otherItem => {
+                if(otherItem !== item) {
+                    otherItem.classList.remove('active');
+                    otherItem.querySelector('.faq-answer').style.maxHeight = null;
+                    otherItem.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
                 }
             });
 
+            // 클릭한 항목 토글
             if (!isActive) {
                 item.classList.add('active');
                 answer.style.maxHeight = answer.scrollHeight + "px";
+                question.setAttribute('aria-expanded', 'true');
             } else {
                 item.classList.remove('active');
                 answer.style.maxHeight = null;
+                question.setAttribute('aria-expanded', 'false');
             }
         });
     });
 
-    // 2. 카테고리 필터링
+    /* ==========================================================================
+       [2] 카테고리 필터링 (Category Filter)
+       - 선택된 카테고리에 해당하는 항목만 표시합니다.
+       ========================================================================== */
     function filterFaq(category) {
         const items = document.querySelectorAll('.faq-item');
         const buttons = document.querySelectorAll('.filter-btn');
 
+        // 버튼 활성화 상태 업데이트
         buttons.forEach(btn => {
             if (btn.innerText === category || (category === 'all' && btn.innerText === '전체')) {
                 btn.classList.add('active');
@@ -532,6 +621,7 @@
             }
         });
 
+        // 리스트 필터링
         items.forEach(item => {
             if (category === 'all' || item.dataset.category === category) {
                 item.style.display = 'block';
@@ -541,14 +631,16 @@
         });
     }
 
-    // 3. 모달 팝업 제어
+    /* ==========================================================================
+       [3] 모달 제어 (Modal Control)
+       ========================================================================== */
     function openModal() {
         const modal = document.getElementById('contactModal');
         modal.classList.add('show');
     }
 
     function closeModal(event) {
-        // 배경을 클릭했거나 닫기 버튼을 클릭했을 때만 닫기
+        // 배경(Overlay) 클릭 또는 닫기 버튼 클릭 시에만 동작
         if (!event || event.target.id === 'contactModal' || event.target.tagName === 'BUTTON') {
             const modal = document.getElementById('contactModal');
             modal.classList.remove('show');

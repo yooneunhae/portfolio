@@ -52,23 +52,43 @@
             }
         }
 
-        /* 2. 헤더 디자인 */
+      /* 2. 헤더 디자인 (좌측 정렬 + 우측 아이콘) */
         header {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 25px;
-        }
-        h1 {
-            font-size: 1.6rem;
-            margin: 0 0 10px 0;
-            color: var(--text-main);
-        }
-        .description {
-            font-size: 0.95rem;
-            color: var(--text-sub);
-            margin: 0;
-            line-height: 1.5;
+            text-align: left;
         }
 
+        .header-text h1 {
+            font-size: 1.6rem;
+            margin: 0 0 5px 0;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+
+        .header-text .description {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            margin: 0;
+        }
+
+        /* 로봇 얼굴 아이콘 스타일 */
+        .header-icon {
+            width: 55px;
+            height: 55px;
+            background-color: #e3f2fd; /* 연한 파란 배경 */
+            border-radius: 50%; /* 원형 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: var(--primary-color);
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.2);
+            margin-left: 15px;
+        }
         /* 3. 필터 버튼 (가로 스크롤 및 줄바꿈 방지 개선) */
         .filter-wrapper {
             display: flex;
@@ -184,6 +204,7 @@
             border-radius: 6px;
             font-weight: bold;
             white-space: nowrap;
+            display: inline-block; /* 블록 형태로 변경 */
         }
         .badge.연차 { background-color: #e3f2fd; color: #1565c0; }
         .badge.급여 { background-color: #fff3e0; color: #e65100; }
@@ -226,7 +247,7 @@
         }
 
         /* 6. 모달 팝업 디자인 */
-         .modal-overlay {
+       .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -249,7 +270,7 @@
             opacity: 1;
         }
 
-          .modal-card {
+        .modal-card {
             background: white;
             width: 100%;
             max-width: 360px;
@@ -261,8 +282,7 @@
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-
-  .modal-overlay.show .modal-card {
+        .modal-overlay.show .modal-card {
             transform: translateY(0) scale(1);
         }
 
@@ -276,21 +296,25 @@
             justify-content: center;
             margin: 0 auto 20px;
         }
-        
+
+        .modal-icon i {
+            font-size: 28px;
+            color: var(--primary-color);
+        }
+
         .modal-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 10px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 8px;
             color: var(--text-main);
         }
 
         .modal-text {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: var(--text-sub);
-            margin-bottom: 20px;
-            line-height: 1.5;
+            margin-bottom: 24px;
+            line-height: 1.6;
         }
-
         /* 연락처 정보 스타일 수정 (링크 스타일) */
         .contact-info {
             background: #f8f9fa;

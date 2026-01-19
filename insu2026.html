@@ -735,7 +735,7 @@
             if (health > 4591740) health = 4591740;
             if (health < 20160) health = 20160;
 
-            let care = floor10(salary * 0.004724);
+            let care = floor10(health * 0.1314);
             let employ = floor10(salary * 0.009);
             let incomeTax = floor10(getIncomeTax(salary));
             let localTax = Math.floor(incomeTax * 0.1 / 10) * 10; 
@@ -744,9 +744,11 @@
             const netPay = salary - total2026;
 
             let pension25 = floor10(salary * 0.045);
-            if (pension25 > 270000) pension25 = 270000;
+            if (pension25 > 286650) pension25 = 286650;
             if (pension25 < 18000) pension25 = 18000;
             let health25 = floor10(salary * 0.03545);
+            if (health25 > 4504170) health25 = 4504170;
+            if (health25 < 9890) health25 = 9890;
             let care25 = floor10(health25 * 0.1295);
             let employ25 = floor10(salary * 0.009);
             

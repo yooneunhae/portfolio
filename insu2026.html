@@ -220,7 +220,7 @@
         }
 
         .input-group {
-            margin-bottom: 0.8rem;
+            margin-bottom: 0.5rem;
         }
 
         .input-wrapper {
@@ -269,7 +269,7 @@
         .close-btn {
             background: #F3F4F6;
             color: #6B7280;
-            margin-top: 0.8rem;
+            margin-top: 0.5rem;
         }
         
         .result-row {
@@ -279,10 +279,11 @@
             font-size: 0.85rem;
         }
         
-        .result-total {
-            margin-top: 0.6rem;
-            padding-top: 0.6rem;
-            border-top: 2px solid #E5E7EB;
+       .result-total {
+            /* [수정] 위쪽 구분선과 동일한 스타일로 통일 (두께 1px, 간격 일치) */
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #E5E7EB;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -341,8 +342,7 @@
     </style>
 </head>
 <body>
-    
-    <button class="calc-btn" onclick="openModal()" aria-label="계산기 열기">
+  <button class="calc-btn" onclick="openModal()" aria-label="계산기 열기">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect width="16" height="20" x="4" y="2" rx="2"></rect>
             <line x1="8" x2="16" y1="6" y2="6"></line>
@@ -373,8 +373,10 @@
                 <div id="errorMsg" class="error-msg">금액을 입력해주세요</div>
             </div>
             
-            <button class="action-btn mb-2" onclick="calculateInsurance()">계산하기</button>
+            <!-- [수정] 박스 간 간격 통일: 버튼 하단 마진 제거 (결과 박스의 상단 마진 0.5rem만 적용됨) -->
+            <button class="action-btn" onclick="calculateInsurance()">계산하기</button>
             
+            <!-- [유지] margin-top: 0.5rem -->
             <div id="resultArea" style="display:none; background: #F9FAFB; padding: 1rem; border-radius: 12px; margin-top: 0.5rem; border: 1px solid #E5E7EB;">
                 <!-- 예상 실수령액 -->
                 <div class="result-net">
@@ -408,6 +410,11 @@
                     <span class="font-bold" id="res-local">0</span>
                 </div>
                 
+                <!-- [수정] 소득세 기준 문구 위치 이동 (지방소득세 바로 아래) -->
+                <div class="text-xs text-gray text-right mb-2" style="margin-top: -0.2rem; margin-bottom: 0;">
+                    *소득세 공제대상 1인(본인) 기준
+                </div>
+                
                 <div class="result-total">
                     <span>총 공제액</span>
                     <span>
@@ -420,7 +427,6 @@
                     <span id="diffBadge">+0원▲</span>
                 </div>
                 
-                <p class="text-xs text-gray text-right mt-2">*소득세 공제대상 1인(본인) 기준</p>
             </div>
 
             <button class="action-btn close-btn" onclick="closeModal(event, true)">닫기</button>

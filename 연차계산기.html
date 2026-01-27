@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>신규 입사자 연차 휴가 가이드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .highlight-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+        /* Mobile Text Optimization: Avoid breaking words in the middle */
+        .keep-all {
+            word-break: keep-all;
+            word-wrap: break-word;
+        }
+        
+        /* Custom Scrollbar for Calendar Days if needed */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+        .calendar-day {
+            aspect-ratio: 1/1; /* Square cells */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 0.375rem; /* rounded-md */
+            font-size: 0.875rem;
+        }
+        .calendar-day:hover {
+            background-color: #eff6ff; /* blue-50 */
+            color: #2563eb; /* blue-600 */
+        }
+        .calendar-day.selected {
+            background-color: #2563eb;
+            color: white;
+        }
+        .calendar-day.empty {
+            pointer-events: none;
+        }
+        @media print {
+            .no-print { display: none; }
+            body { background: white; }
+            .shadow-lg { box-shadow: none; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 keep-all">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-lg md:text-xl font-bold text-blue-900 flex items-center">
+                <i class="fa-solid fa-plane-departure mr-2"></i>
+                <span>연차 가이드</span>
+            </h1>
+            <button onclick="window.print()" class="no-print text-xs md:text-sm bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-md transition text-slate-600">
+                <i class="fa-solid fa-print mr-1"></i> <span class="hidden md:inline">가이드 </span>인쇄
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content: Adjusted mobile spacing to space-y-4 for consistency -->
+    <main class="max-w-5xl mx-auto px-4 py-6 md:py-8 space-y-4 md:space-y-8">
+
+        <!-- Intro -->
+        <section class="text-center space-y-2 px-2 pb-2 md:pb-0">
+            <h2 class="text-2xl md:text-3xl font-bold text-slate-900">환영합니다! 👏</h2>
+            <p class="text-slate-600 text-sm md:text-base leading-relaxed">
+                당사는 <span class="font-bold text-blue-600">회계연도(1.1 ~ 12.31) 기준</span>으로<br class="block md:hidden"> 연차휴가를 운영하고 있습니다.<br>
+                입사일별 예상 연차를<br class="block md:hidden"> 아래 계산기에서 확인해보세요.
+            </p>
+        </section>
+
+        <!-- Calculator Section -->
+        <section class="bg-white rounded-2xl shadow-lg border border-slate-200 relative z-20 overflow-visible">
+            <div class="highlight-gradient p-5 md:p-6 text-white rounded-t-2xl">
+                <h3 class="text-lg font-bold flex items-center">
+                    <i class="fa-solid fa-calculator mr-2"></i> 
+                    <span>나의 예상 연차 계산기</span>
+                </h3>
+                <p class="text-blue-100 text-xs md:text-sm mt-1 opacity-90">입사일을 입력하면 회계연도 기준 발생 연차를 계산합니다.</p>
+            </div>
+            
+            <div class="p-5 md:p-8 grid md:grid-cols-12 gap-6 md:gap-8">
+                <!-- Input Area -->
+                <div class="md:col-span-4 space-y-4 md:border-r border-slate-100 md:pr-4 relative">
+                    <div class="relative group">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">입사일자 입력</label>
+                        
+                        <!-- Custom Input Wrapper -->
+                        <div class="relative z-50">
+                            <input type="text" id="joinDateInput" 
+                                class="w-full pl-4 pr-10 py-3 md:py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition font-mono text-lg md:text-base tracking-widest placeholder-slate-300 shadow-sm" 
+                                placeholder="YYYYMMDD" maxlength="10" autocomplete="off">
+                            <button onclick="toggleCalendar()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 p-2">
+                                <i class="fa-regular fa-calendar-alt text-xl md:text-lg"></i>
+                            </button>
+                            
+                            <!-- Custom Calendar Popup -->
+                            <div id="customCalendar" class="hidden absolute top-full left-0 mt-1 w-full bg-white rounded-lg shadow-xl border border-slate-200 p-3 z-50">
+                                <!-- Calendar Header -->
+                                <div class="flex justify-between items-center mb-2">
+                                    <button onclick="changeMonth(-1)" class="p-1 hover:bg-slate-100 rounded text-slate-500"><i class="fa-solid fa-chevron-left"></i></button>
+                                    <div id="calendarTitle" class="font-bold text-slate-700 text-sm"></div>
+                                    <button onclick="changeMonth(1)" class="p-1 hover:bg-slate-100 rounded text-slate-500"><i class="fa-solid fa-chevron-right"></i></button>
+                                </div>
+                                <!-- Calendar Grid -->
+                                <div class="grid grid-cols-7 gap-1 text-center text-xs font-medium text-slate-400 mb-1">
+                                    <div class="text-red-400">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div class="text-blue-400">토</div>
+                                </div>
+                                <div id="calendarDays" class="calendar-grid text-sm text-slate-700">
+                                    <!-- Days will be generated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="calculateLeave()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 md:py-2.5 rounded-lg transition shadow-md hover:shadow-lg transform active:scale-95 mt-2 flex items-center justify-center text-lg md:text-base">
+                        <span>계산하기</span>
+                    </button>
+                    <div class="text-xs text-slate-400 mt-2 leading-snug">
+                        * 퇴사 시점에는 입사일 기준으로 재정산하여 근로자에게 유리한 방식을 적용합니다.
+                    </div>
+                </div>
+
+                <!-- Result Display -->
+                <div class="md:col-span-8 space-y-6 pt-6 md:pt-0 border-t md:border-t-0 border-slate-100" id="resultArea">
+                    <!-- Dynamic Content will be injected here -->
+                    <div class="flex flex-col items-center justify-center h-full text-slate-400 space-y-2 py-8 md:py-0">
+                        <i class="fa-solid fa-arrow-up text-2xl md:hidden animate-bounce"></i>
+                        <i class="fa-solid fa-arrow-left text-2xl hidden md:block animate-pulse"></i>
+                        <p>입사일을 입력하고 계산 버튼을 눌러주세요.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Rules Section -->
+        <!-- Added gap-4 to match space-y-4 of main container for consistent feel -->
+        <div class="grid md:grid-cols-2 gap-4 md:gap-6 relative z-0">
+            <!-- Card 1: 1년 미만 -->
+            <section class="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-slate-200 hover:border-blue-300 transition">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mr-3 flex-shrink-0">
+                        <i class="fa-solid fa-seedling text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900">1년 미만<br class="block md:hidden"> 신규 입사자</h3>
+                </div>
+                <ul class="space-y-3 text-sm text-slate-600">
+                    <li class="flex items-start">
+                        <i class="fa-solid fa-check text-blue-500 mt-1 mr-2 flex-shrink-0"></i> 
+                        <span>1개월 개근 시 <strong class="text-blue-600">1일의 월차</strong> 발생</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa-solid fa-check text-blue-500 mt-1 mr-2 flex-shrink-0"></i> 
+                        <span>최대 11일 발생 <span class="text-slate-400 text-xs">(입사 후 1년 내)</span></span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa-solid fa-check text-blue-500 mt-1 mr-2 flex-shrink-0"></i> 
+                        <span>발생한 월차는 입사일로부터 1년 이내 사용</span>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Card 2: 2년차 (회계기준) -->
+            <section class="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-slate-200 hover:border-blue-300 transition">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mr-3 flex-shrink-0">
+                        <i class="fa-solid fa-calendar-days text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900">입사 다음해<br class="block md:hidden"> 1월 1일</h3>
+                </div>
+                <ul class="space-y-3 text-sm text-slate-600">
+                    <li class="flex items-start">
+                        <i class="fa-solid fa-check text-indigo-500 mt-1 mr-2 flex-shrink-0"></i> 
+                        <span><strong class="text-indigo-600">15일 × (재직일수/365)</strong> 비례 발생</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa-solid fa-check text-indigo-500 mt-1 mr-2 flex-shrink-0"></i> 
+                        <span>여기에 1년차 잔여 월차(11일 중 미발생분)가 합산됨</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa-solid fa-circle-info text-slate-400 mt-1 mr-2 flex-shrink-0"></i> 
+                        <span>1년 만근 전이라도 회계기준일(1/1)에 미리 휴가 생성</span>
+                    </li>
+                </ul>
+            </section>
+        </div>
+
+        <!-- Usage & Process -->
+        <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative z-0">
+            <div class="border-b border-slate-100 p-4 bg-slate-50">
+                <h3 class="font-bold text-slate-800">📌 휴가 사용 및 신청 가이드</h3>
+            </div>
+            <div class="p-5 md:p-6 grid md:grid-cols-3 gap-8 divider-x">
+                
+                <!-- Usage Units -->
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-sm text-slate-500 uppercase tracking-wider mb-2">사용 단위</h4>
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded border border-slate-100">
+                            <span class="text-sm">2시간 (0.25)</span>
+                            <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">반반차</span>
+                        </div>
+                        <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded border border-slate-100">
+                            <span class="text-sm">4시간 (0.5)</span>
+                            <span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded">반차</span>
+                        </div>
+                        <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded border border-slate-100">
+                            <span class="text-sm">8시간 (1.0)</span>
+                            <span class="text-xs font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded">연차</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Approval Process -->
+                <div class="space-y-3 md:col-span-2">
+                    <h4 class="font-semibold text-sm text-slate-500 uppercase tracking-wider mb-2">신청 절차 (3일 전)</h4>
+                    <div class="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-3 text-sm mt-2">
+                        <!-- Step 1 -->
+                        <div class="flex-1 text-center bg-white border border-slate-200 p-3 rounded-lg w-full shadow-sm">
+                            <div class="text-xl mb-1">🖥️</div>
+                            <div class="font-bold">그룹웨어</div>
+                            <div class="text-xs text-slate-500 mt-1">[근무/휴가신청]</div>
+                        </div>
+                        
+                        <!-- Arrow -->
+                        <i class="fa-solid fa-chevron-down text-slate-300 md:hidden"></i>
+                        <i class="fa-solid fa-chevron-right text-slate-300 hidden md:block"></i>
+                        
+                        <!-- Step 2 -->
+                        <div class="flex-1 text-center bg-white border border-slate-200 p-3 rounded-lg w-full shadow-sm">
+                            <div class="text-xl mb-1">✍️</div>
+                            <div class="font-bold">결재 상신</div>
+                            <div class="text-xs text-slate-500 mt-1">본인→상급자→부서장</div>
+                        </div>
+                        
+                        <!-- Arrow -->
+                        <i class="fa-solid fa-chevron-down text-slate-300 md:hidden"></i>
+                        <i class="fa-solid fa-chevron-right text-slate-300 hidden md:block"></i>
+                        
+                        <!-- Step 3 -->
+                        <div class="flex-1 text-center bg-white border border-blue-200 p-3 rounded-lg w-full shadow-sm relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-3 h-3 bg-blue-500 rounded-bl-full"></div>
+                            <div class="text-xl mb-1">✅</div>
+                            <div class="font-bold text-blue-900">최종 승인</div>
+                            <div class="text-xs text-slate-500 mt-1">HR팀 처리</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Special Leave (Exceptions) -->
+        <section class="bg-amber-50 rounded-xl p-5 md:p-6 border border-amber-100">
+            <div class="flex items-start space-x-3">
+                <div class="text-amber-500 mt-0.5 flex-shrink-0">
+                    <i class="fa-solid fa-star text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-amber-900 mb-1 leading-snug">잠깐! 연차 차감 없는 휴가</h3>
+                    <p class="text-sm text-amber-800 mb-2 leading-relaxed opacity-90">아래 사유는 '공가' 처리됩니다. (증빙 필수)</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-2 py-1 bg-white border border-amber-200 rounded text-xs text-amber-700 shadow-sm">건강검진</span>
+                        <span class="px-2 py-1 bg-white border border-amber-200 rounded text-xs text-amber-700 shadow-sm">예비군/민방위</span>
+                        <span class="px-2 py-1 bg-white border border-amber-200 rounded text-xs text-amber-700 shadow-sm">자녀 학교행사</span>
+                        <span class="px-2 py-1 bg-white border border-amber-200 rounded text-xs text-amber-700 shadow-sm">경조사</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer with Divider: Removed border-t from footer, added div divider with mx-4 -->
+    <div class="max-w-5xl mx-auto">
+        <div class="h-px bg-slate-200 mx-4 md:mx-4 mt-8"></div>
+    </div>
+    
+    <footer class="max-w-5xl mx-auto px-4 py-6 text-center text-slate-400 text-xs pb-6">
+        <p class="leading-relaxed">본 가이드는 신규 입사자의 이해를 돕기 위해 작성되었으며,<br class="block md:hidden"> 상세 규정은 사내 취업규칙을 우선합니다.</p>
+        <p class="mt-2 font-medium">문의: 인사팀 (내선 1234)</p>
+    </footer>
+
+    <script>
+        // --- CUSTOM CALENDAR LOGIC (Same as before) ---
+        let currentCalendarDate = new Date();
+        let selectedDate = new Date();
+
+        function toggleCalendar() {
+            const calendar = document.getElementById('customCalendar');
+            if (calendar.classList.contains('hidden')) {
+                const val = document.getElementById('joinDateInput').value.replace(/-/g, '');
+                if (val.length === 8) {
+                    const y = parseInt(val.substring(0,4));
+                    const m = parseInt(val.substring(4,6)) - 1;
+                    const d = parseInt(val.substring(6,8));
+                    currentCalendarDate = new Date(y, m, d);
+                }
+                renderCalendar();
+                calendar.classList.remove('hidden');
+            } else {
+                calendar.classList.add('hidden');
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            const calendar = document.getElementById('customCalendar');
+            const inputGroup = document.getElementById('joinDateInput').closest('.relative');
+            if (!calendar.classList.contains('hidden') && !inputGroup.contains(event.target)) {
+                calendar.classList.add('hidden');
+            }
+        });
+
+        function changeMonth(delta) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function selectDate(year, month, day) {
+            const formatted = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            document.getElementById('joinDateInput').value = formatted;
+            document.getElementById('customCalendar').classList.add('hidden');
+            calculateLeave();
+        }
+
+        function renderCalendar() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            
+            document.getElementById('calendarTitle').innerText = `${year}.${String(month + 1).padStart(2, '0')}`;
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDayIndex = firstDay.getDay();
+            const totalDays = lastDay.getDate();
+
+            const grid = document.getElementById('calendarDays');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < startDayIndex; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'calendar-day empty';
+                grid.appendChild(emptyCell);
+            }
+
+            const inputVal = document.getElementById('joinDateInput').value.replace(/-/g, '');
+            let selectedY = -1, selectedM = -1, selectedD = -1;
+            if (inputVal.length === 8) {
+                selectedY = parseInt(inputVal.substring(0,4));
+                selectedM = parseInt(inputVal.substring(4,6)) - 1;
+                selectedD = parseInt(inputVal.substring(6,8));
+            }
+
+            for (let d = 1; d <= totalDays; d++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-day hover:bg-blue-50 hover:text-blue-600 rounded cursor-pointer transition';
+                dayCell.innerText = d;
+                if (year === selectedY && month === selectedM && d === selectedD) {
+                    dayCell.classList.add('selected');
+                }
+                dayCell.onclick = () => selectDate(year, month, d);
+                grid.appendChild(dayCell);
+            }
+        }
+
+        // --- INPUT LOGIC ---
+        const dateInput = document.getElementById('joinDateInput');
+        dateInput.addEventListener('input', function(e) {
+            let val = e.target.value.replace(/\D/g, '');
+            if (val.length >= 8) {
+                 const y = val.substring(0,4);
+                 const m = val.substring(4,6);
+                 const d = val.substring(6,8);
+                 if (parseInt(m) > 0 && parseInt(m) <= 12 && parseInt(d) > 0 && parseInt(d) <= 31) {
+                     e.target.value = `${y}-${m}-${d}`;
+                     calculateLeave();
+                 }
+            } else {
+                e.target.value = val;
+            }
+        });
+
+        dateInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                calculateLeave();
+                document.getElementById('customCalendar').classList.add('hidden');
+            }
+        });
+
+        window.onload = function() {
+            const today = new Date();
+            const y = today.getFullYear();
+            const m = String(today.getMonth() + 1).padStart(2, '0');
+            const d = String(today.getDate()).padStart(2, '0');
+            document.getElementById('joinDateInput').value = `${y}-${m}-${d}`;
+            calculateLeave();
+        };
+
+        // --- CALCULATION LOGIC ---
+        function calculateLeave() {
+            let joinDateStr = document.getElementById('joinDateInput').value;
+            joinDateStr = joinDateStr.replace(/-/g, '');
+            
+            if (joinDateStr.length !== 8) return;
+
+            const joinYear = parseInt(joinDateStr.substring(0,4), 10);
+            const joinMonth = parseInt(joinDateStr.substring(4,6), 10) - 1; 
+            const joinDay = parseInt(joinDateStr.substring(6,8), 10);
+
+            if (joinMonth < 0 || joinMonth > 11 || joinDay < 1 || joinDay > 31) return;
+
+            const joinDate = new Date(joinYear, joinMonth, joinDay);
+            const year1End = new Date(joinYear, 11, 31); 
+            const msPerDay = 1000 * 60 * 60 * 24;
+            
+            const diffTime = year1End.getTime() - joinDate.getTime();
+            if (diffTime < 0) {
+                 document.getElementById('resultArea').innerHTML = '<div class="flex items-center justify-center h-full text-red-400 py-4">입사일은 연말 이전이어야 합니다.</div>';
+                 return;
+            }
+
+            const workingDays = Math.floor(diffTime / msPerDay) + 1;
+            
+            let monthlyLeavesYear1 = 0;
+            for (let i = 0; i < 12; i++) {
+                let nextGenDate = new Date(joinYear, joinMonth + 1 + i, joinDay);
+                const intendedMonth = (joinMonth + 1 + i) % 12;
+                if (nextGenDate.getMonth() !== intendedMonth) {
+                    nextGenDate = new Date(nextGenDate.getFullYear(), nextGenDate.getMonth(), 0);
+                }
+                if (nextGenDate <= year1End) {
+                    monthlyLeavesYear1++;
+                } else {
+                    break;
+                }
+            }
+            if (monthlyLeavesYear1 > 11) monthlyLeavesYear1 = 11;
+
+            const nextYear = joinYear + 1;
+            const proRataRaw = 15 * (workingDays / 365);
+            const proRata = Math.ceil(proRataRaw);
+            const remainingMonthly = 11 - monthlyLeavesYear1;
+            const safeRemaining = remainingMonthly < 0 ? 0 : remainingMonthly;
+            const totalYear2 = proRata + safeRemaining;
+            const joinDateFormatted = `${joinYear}.${String(joinMonth + 1).padStart(2, '0')}.${String(joinDay).padStart(2, '0')}`;
+
+            // Modified Result Template
+            const resultHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Year 1 Box -->
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 hover:border-blue-300 transition">
+                        <div class="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wide flex justify-between items-center">
+                            <span>📅 올해 (${joinYear})</span>
+                            <span class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">${joinDateFormatted}~12.31</span>
+                        </div>
+                        <div class="text-2xl font-bold text-slate-800 mb-1 flex items-baseline">
+                            ${monthlyLeavesYear1}<span class="text-sm font-normal ml-1">일</span>
+                        </div>
+                        <div class="text-xs text-slate-500 keep-all leading-tight">
+                            매월 개근 시 1일씩 발생<br>
+                            (최대 11일)
+                        </div>
+                    </div>
+
+                    <!-- Year 2 Box -->
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 relative overflow-hidden shadow-sm">
+                        <div class="absolute right-0 top-0 w-12 h-12 bg-blue-100 rounded-bl-full -mr-6 -mt-6 z-0"></div>
+                        <div class="relative z-10">
+                            <!-- Updated Header with Date Range -->
+                            <div class="text-xs font-bold text-blue-600 mb-2 uppercase tracking-wide flex justify-between items-center">
+                                <span>🚀 내년 (${nextYear}.01.01)</span>
+                                <span class="bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded text-[10px]">${nextYear}.01.01~12.31</span>
+                            </div>
+                            <div class="text-3xl font-bold text-blue-800 mb-1 flex items-baseline">
+                                ${totalYear2}<span class="text-base font-normal ml-1">일</span>
+                            </div>
+                            <div class="text-xs text-blue-700 mt-2 bg-white/60 p-2 rounded inline-block w-full">
+                                <div class="flex justify-between border-b border-blue-200 pb-1 mb-1">
+                                    <span>잔여월차</span>
+                                    <span class="font-bold">${safeRemaining}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>비례연차</span>
+                                    <span class="font-bold">${proRata}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Explanation / Timeline Text -->
+                <div class="bg-slate-50 rounded-lg p-4 text-xs md:text-sm space-y-2 border-l-4 border-blue-500">
+                    <p class="font-bold text-slate-800 flex items-center">
+                        <i class="fa-solid fa-lightbulb text-yellow-500 mr-1.5"></i> 계산 상세
+                    </p>
+                    <ul class="text-slate-600 space-y-1 ml-0.5">
+                        <li class="flex items-start">
+                            <span class="mr-1.5 opacity-50">•</span>
+                            <span>근무일수: <strong>${workingDays}일</strong> (입사일 포함)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="mr-1.5 opacity-50">•</span>
+                            <span>비례식: 15 × ${workingDays}/365 = ${proRataRaw.toFixed(2)} <i class="fa-solid fa-arrow-right text-[10px] mx-0.5"></i> <strong class="text-blue-600">${proRata}일(올림)</strong></span>
+                        </li>
+                    </ul>
+                </div>
+            `;
+
+            document.getElementById('resultArea').innerHTML = resultHTML;
+        }
+    </script>
+</body>
+</html>
